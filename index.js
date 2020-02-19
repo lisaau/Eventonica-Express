@@ -1,11 +1,13 @@
 const express = require('express');
 const { EventRecommender, User,  Event}  = require('./src/EventRecommender');
+const er = new EventRecommender();
+
 const bodyParser = require('body-parser');
 // const cookieParser = require('cookie-parser');
 
 const app = express();
 
-// app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false }));
 // app.use(cookieParser());
 
 // NOTES/Q's:
@@ -45,10 +47,25 @@ const app = express();
     // find events by category (get)
     // save event for user (put), displaying results (get)
 
+app.use(express.static('public'))
+    
+app.get('/users', (req, res) => {
+
+})
+
+app.post('/user', (req, res) => {
+    const user = req.body.user;
+
+    // Output the user to the console for debugging
+    console.log(user);
+    er.addUser(user)
+
+    res.send('User is added to the "database"');
+});
 
 
-app.get('/', (req, res) => {
-    res.send('hello'); 
+app.get('/test', (req, res) => {
+    res.send(er); 
 });
 
 const PORT = 3000;

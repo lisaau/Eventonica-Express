@@ -1,5 +1,6 @@
 if (!moment) {
     var moment = require('moment');
+    // import moment from 'moment';
     moment().format();   
 }
 
@@ -11,9 +12,9 @@ class EventRecommender {
         this.bookmarkedEvents = {}
     }
 
-    addEvent(eventID, eventName, date, category, description) {
+    addEvent(eventID, eventDate, eventName, eventCategory, eventLocation) {
     // Adds a new Event to the System
-        this.events.push(new Event(eventID, eventName, date, category, description));
+        this.events.push(new Event(eventID, new Date(eventDate), eventName, eventCategory, eventLocation));
     }
 
     addUser(userName, userID) {
@@ -57,7 +58,10 @@ class EventRecommender {
 
     deleteUser(userID) {
     // Deletes a User from the system based on userID
+        console.log(userID);
+        console.log(this.users);
         this.users = this.users.filter(user => user.userID !== userID);
+        console.log(this.users);
     }
    
     deleteEvent(eventID) {
@@ -89,12 +93,12 @@ class EventRecommender {
 }
 
 class Event {
-    constructor(eventName, date, category, description, eventID) {
+    constructor(eventID, eventDate, eventName, eventCategory, eventLocation) {
         this.eventID = eventID || Math.floor(Math.random() * 100000);
-        this.date = date; // expect date object in input
+        this.eventDate = eventDate; // expect date object in input
         this.eventName = eventName;
-        this.category = category;
-        this.description = description || '';
+        this.eventCategory = eventCategory;
+        this.eventLocation = eventLocation;
     }
 
     getFormattedDate() {
@@ -116,3 +120,5 @@ class User {
 if (typeof module != 'undefined'){
     module.exports = { EventRecommender, User,  Event} 
 }
+
+// export {EventRecommender, User, Event}  

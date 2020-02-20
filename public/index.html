@@ -11,7 +11,7 @@
         
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
         <script>moment().format();</script>
-        <script src="src/EventRecommender.js"></script>
+        
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
         <script src="src/jQuery-scripts.js"></script>
     </head>
@@ -64,12 +64,12 @@
                 <div class="col add-delete-right">
                     <div>
                         <h3>Add User</h3>
-                        <form id="add-user" action="http://localhost:3000/user" method='POST'>
+                        <form id="add-user" action="/user" method='POST'>
                             <label for="add-user-id">User ID:</label>
-                            <input type="number" id="add-user-id">
+                            <input type="number" id="add-user-id" name="userid">
                             <br/>
                             <label for="add-user-name">User name:</label>
-                            <input type="text" id="add-user-name" required>
+                            <input type="text" id="add-user-name" name="username" required>
                             <br/>
                             <input type="submit" id="add-user-submit" value="Add User">
                         </form>
@@ -77,9 +77,9 @@
             
                     <div>
                         <h3>Delete User</h3>
-                        <form id="delete-user">
+                        <form id="delete-user" action="/user" method='DELETE'>
                             <label for="delete-user-id">User ID:</label>
-                            <input type="text" id="delete-user-id">
+                            <input type="text" id="delete-user-id" name="userid">
                             <br/>
                             <input type="submit" id="delete-user-submit" value="Delete User">
                         </form>
@@ -100,7 +100,7 @@
     
                 <div class="col add-delete-right">
                     <h3>Add Event</h3>
-                    <form id="add-event" action="#all-events">
+                    <form id="add-event" action="/event" method="POST">
                         <label for="add-event-id">Event ID:</label>
                         <input type="number" min="1" id="add-event-id">
                         <br/>
@@ -238,7 +238,7 @@
         
         <footer class="page-footer pt-4"></footer>
 
-        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>  
     </body>

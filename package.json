@@ -2,7 +2,7 @@
   "name": "Eventonica",
   "version": "1.0.0",
   "description": "",
-  "main": "EventRecommender.js",
+  "main": "index.js",
   "scripts": {
     "test": "jasmine"
   },

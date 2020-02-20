@@ -1,13 +1,16 @@
 const express = require('express');
+// import express from 'express';
 const { EventRecommender, User,  Event}  = require('./src/EventRecommender');
+// import { EventRecommender, User,  Event} from './src/EventRecommender';
 const er = new EventRecommender();
 
 const bodyParser = require('body-parser');
+// import bodyParser from 'body-parser';
 // const cookieParser = require('cookie-parser');
 
 const app = express();
 
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(cookieParser());
 
 // NOTES/Q's:
@@ -47,22 +50,53 @@ app.use(bodyParser.urlencoded({ extended: false }));
     // find events by category (get)
     // save event for user (put), displaying results (get)
 
+
+// serve static files
 app.use(express.static('public'))
     
+// displaying all users
 app.get('/users', (req, res) => {
-
+    res.json(er.users); // is an array
 })
 
+// adding one user
 app.post('/user', (req, res) => {
-    const user = req.body.user;
-
+    const username = req.body.username;
+    const userid = req.body.userid;
+    console.log("Body of request is: ", req.body)
     // Output the user to the console for debugging
-    console.log(user);
-    er.addUser(user)
+    console.log("req.body.username/user is: ", username);
+    er.addUser(username, userid)
 
-    res.send('User is added to the "database"');
+    res.status(200).send('User is added to the "database"');
 });
 
+// deleting one user (DOES NOT WORK)
+app.delete('/user/:userid', (req, res) => {
+    const user = parseInt(req.params.userid);
+    console.log(req.params);
+    
+    if(er.users.includes(er.getUserByID(user))) {
+        er.deleteUser(user);
+        res.status(200).send('User is deleted from the "database"');
+    } else {
+        res.status(400).send('User was not found');
+    }
+})
+
+// display all events
+app.get('/events', (req, res) => {
+    res.json(er.events)
+})
+
+// adding one event (DOES NOT WORK, name, date and description is missing)
+app.post('/event', (req, res) => {
+    const {eventID, eventDate, eventName, eventCategory, eventLocation} = req.body;
+    console.log("Body of request is: ", req.body)
+    er.addEvent(eventID, eventDate, eventName, eventCategory, eventLocation)
+
+    res.send('Event is added to the "database"');
+});
 
 app.get('/test', (req, res) => {
     res.send(er); 

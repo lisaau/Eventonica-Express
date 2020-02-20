@@ -141,7 +141,7 @@ $(document).ready( () => {
     //         });
     //     })
         
-    
+    // NEED TO ADJUST CODE BELOW TO USE NEW findEventsByDate that accepts strings instead of date object
     //     $("#date-search").submit(() => {
     //         let year = parseInt($("#date-search-year").val());
     //         let month = parseInt($("#date-search-month").val());

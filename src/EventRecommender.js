@@ -12,9 +12,9 @@ class EventRecommender {
         this.bookmarkedEvents = {}
     }
 
-    addEvent(eventID, eventDate, eventName, eventCategory, eventLocation) {
+    addEvent({eventID, eventDate, eventName, eventCategory, eventLocation}) {
     // Adds a new Event to the System
-        this.events.push(new Event(eventID, new Date(eventDate), eventName, eventCategory, eventLocation));
+        this.events.push(new Event(eventID, eventDate, eventName, eventCategory, eventLocation));
     }
 
     addUser(userName, userID) {
@@ -70,24 +70,36 @@ class EventRecommender {
         // return this.users;
     }
 
-    findEventsByDate(dateObject){
-    // Returns all events on a given date in this.events
-        let eventsOnGivenDate = [];
-        // iterate over this.events and check the date
-        for (let event of this.events) {
-            let eventDate = event.date;
-            if (dateObject.getTime() === eventDate.getTime()) {
-                eventsOnGivenDate.push(event);
+    // findEventsByDate(dateObject){
+    // // Returns all events on a given date in this.events
+    //     let eventsOnGivenDate = [];
+    //     // iterate over this.events and check the date
+    //     for (let event of this.events) {
+    //         let eventDate = event.date;
+    //         if (dateObject.getTime() === eventDate.getTime()) {
+    //             eventsOnGivenDate.push(event);
+    //         }
+    //     }
+    //     return eventsOnGivenDate;
+    // }
+
+    // return array of events that match 
+    findEventsByDate({year, month, day}){
+        const result = [];
+        for (let event of eventRecommender.events) {
+            if ((Number.isNaN(year) || year === event.eventDate.year &&
+            (Number.isNaN(month) || month === event.eventDate.month) &&
+            (Number.isNaN(day) || day === event.eventDate.day))) {
+                result.push(event);
             }
         }
-
-        return eventsOnGivenDate;
+        return result;
     }
     
-    findEventsByCategory(category){
+    findEventsByCategory(eventCategory){
     // Returns all events in a given category
         return this.events.filter(event => {
-            return event.category.toLowerCase() === category.toLowerCase();
+            return event.eventCategory.toLowerCase() === eventCategory.toLowerCase();
         });
     }
 }
@@ -95,14 +107,18 @@ class EventRecommender {
 class Event {
     constructor(eventID, eventDate, eventName, eventCategory, eventLocation) {
         this.eventID = eventID || Math.floor(Math.random() * 100000);
-        this.eventDate = eventDate; // expect date object in input
+        this.eventDate = eventDate; // expect date string object in input {yyyy, mm, dd}
         this.eventName = eventName;
         this.eventCategory = eventCategory;
         this.eventLocation = eventLocation;
     }
 
+    // 2/19 updated to accept object of strings
     getFormattedDate() {
-        return moment(this.date).format('MMM Do YYYY');
+        let dateString = `${this.eventDate.year},${this.eventDate.month},${this.eventDate.day}`;
+        // console.log('formated date is: ', dateString);
+        // console.log(new Date(dateString));
+        return moment(new Date(dateString)).format('MMM Do YYYY');
     }
 }
 
@@ -116,6 +132,25 @@ class User {
         return this.userID;
     }
 }
+
+    const eventRecommender = new EventRecommender();
+        eventRecommender.addUser("Lisa", 12345);
+        eventRecommender.addUser("Kim", 12346);
+        eventRecommender.addUser("Bob", 12347);
+        eventRecommender.addEvent({'eventName': "Dumpling Down – Lunar New Year Food Festival", 'eventDate': {'year': 2020, 'month': 01, 'day': 03}, 'eventCategory': "Food and Drink", 'eventLocation': "sf", 'eventID': 11111});
+        eventRecommender.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "sports", 'eventLocation': "sf", 'eventID': 22222});
+        // eventRecommender.addEvent("Incredible Art Gallery Exhibit", new Date(2020, 01, 21), "Arts & Theatre", "sf", 22222);
+        eventRecommender.saveUserEvent(12346, 22222)
+        eventRecommender.saveUserEvent(12346, 11111)
+        eventRecommender.saveUserEvent(12345, 11111)
+// console.log(eventRecommender);
+// let dateString = eventRecommender.events[0].eventDate;
+// console.log(new Date(dateString.year, dateString.month, dateString.day));
+// console.log(eventRecommender.events[0] instanceof Event)
+// console.log(eventRecommender.events[0].getFormattedDate())
+// console.log(eventRecommender.findEventsByCategory('sports'));
+// console.log(eventRecommender.findEventsByDate({'year': 2021, 'month': 04, 'day': 03}));
+
 
 if (typeof module != 'undefined'){
     module.exports = { EventRecommender, User,  Event} 

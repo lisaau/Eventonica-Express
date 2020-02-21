@@ -28,18 +28,20 @@ class EventRecommender {
     }
 
     // expects numbers for the ID's
+    // initialize new Set if user never saved an event
+    // add eventID to the Set for the user
     saveUserEvent(userid, eventid){
         // checks if user and event exists already
         let user = this.getUserByID(userid);
         let event = this.getEventByID(eventid);
-        if (!user || !event) {
-            return "Please make sure both the user and event exists on our platform"
-        }
+        // if (!user || !event) {
+        //     return "Please make sure both the user and event exists on our platform"
+        // }
 
         if (!this.bookmarkedEvents[user.getUserID()]) {
-            this.bookmarkedEvents[user.getUserID()] = [];
+            this.bookmarkedEvents[user.getUserID()] = new Set();
         }
-        this.bookmarkedEvents[user.getUserID()].push(eventid);
+        this.bookmarkedEvents[user.getUserID()].add(eventid);
     }
 
     // returns user object
@@ -133,16 +135,16 @@ class User {
     }
 }
 
-    const eventRecommender = new EventRecommender();
-        eventRecommender.addUser("Lisa", 12345);
-        eventRecommender.addUser("Kim", 12346);
-        eventRecommender.addUser("Bob", 12347);
-        eventRecommender.addEvent({'eventName': "Dumpling Down – Lunar New Year Food Festival", 'eventDate': {'year': 2020, 'month': 01, 'day': 03}, 'eventCategory': "Food and Drink", 'eventLocation': "sf", 'eventID': 11111});
-        eventRecommender.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "sports", 'eventLocation': "sf", 'eventID': 22222});
-        // eventRecommender.addEvent("Incredible Art Gallery Exhibit", new Date(2020, 01, 21), "Arts & Theatre", "sf", 22222);
-        eventRecommender.saveUserEvent(12346, 22222)
-        eventRecommender.saveUserEvent(12346, 11111)
-        eventRecommender.saveUserEvent(12345, 11111)
+    // const eventRecommender = new EventRecommender();
+    //     eventRecommender.addUser("Lisa", 12345);
+    //     eventRecommender.addUser("Kim", 12346);
+    //     eventRecommender.addUser("Bob", 12347);
+    //     eventRecommender.addEvent({'eventName': "Dumpling Down – Lunar New Year Food Festival", 'eventDate': {'year': 2020, 'month': 01, 'day': 03}, 'eventCategory': "Food and Drink", 'eventLocation': "sf", 'eventID': 11111});
+    //     eventRecommender.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "sports", 'eventLocation': "sf", 'eventID': 22222});
+    //     // eventRecommender.addEvent("Incredible Art Gallery Exhibit", new Date(2020, 01, 21), "Arts & Theatre", "sf", 22222);
+    //     eventRecommender.saveUserEvent(12346, 22222)
+    //     eventRecommender.saveUserEvent(12346, 11111)
+    //     eventRecommender.saveUserEvent(12345, 11111)
 // console.log(eventRecommender);
 // let dateString = eventRecommender.events[0].eventDate;
 // console.log(new Date(dateString.year, dateString.month, dateString.day));

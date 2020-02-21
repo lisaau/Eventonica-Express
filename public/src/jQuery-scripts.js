@@ -1,3 +1,4 @@
+// [2/20 NEED TO FIX JQUERY CODE]when an event is deleted, if there is any user attending that event, then those records should be deleted as well. We call this "cascading", and I encourage you to look into it some more.avoid using arrow functions in the handlers, and that's because one of the (usually great) attribute of an arrow function is auto-binding of the "this" context, which can create problems if you never need to call $(this).
 $(document).ready( () => {
     // const eventRecommender = new EventRecommender();
     //     eventRecommender.addUser("Lisa", 12345);
@@ -34,7 +35,8 @@ $(document).ready( () => {
         $("#add-user").submit((e) => {
             e.preventDefault();
             let name = $("#add-user-name").val();
-            let id = parseInt($("#add-user-id").val()); 
+            let id = parseInt($("#add-user-id").val());
+        
     
             // eventRecommender.addUser(name, id);
             let request = $.ajax( {

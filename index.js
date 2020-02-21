@@ -3,33 +3,36 @@ const express = require('express');
 const { EventRecommender, User,  Event}  = require('./src/EventRecommender');
 // import { EventRecommender, User,  Event} from './src/EventRecommender';
 const er = new EventRecommender();
-er.addEvent({'eventName': "Dumpling Down – Lunar New Year Food Festival", 'eventDate': {'year': 2020, 'month': 01, 'day': 03}, 'eventCategory': "Food and Drink", 'eventLocation': "sf", 'eventID': 11111});
-er.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "sports", 'eventLocation': "sf", 'eventID': 22222});
+er.addEvent({'eventName': "event1", 'eventDate': {'year': 2020, 'month': 01, 'day': 03}, 'eventCategory': "Food and Drink", 'eventLocation': "sf", 'eventID': 11111});
+er.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "Sports", 'eventLocation': "sf", 'eventID': 22222});
+// er.addUser({'userID': 12345, 'userName': "Lisa"});
+er.addUser(12345, "Lisa");
+er.addUser(12346, "Kim");
+
 const bodyParser = require('body-parser');
 // import bodyParser from 'body-parser';
 // const cookieParser = require('cookie-parser');
-
+const morgan = require('morgan');
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(cookieParser());
+app.use(morgan('tiny'));
+
 
 // NOTES/Q's:
-// do I need a template engine for single page app? what if I already have an html file? can I just serve that or do I have to convert with template engine? probably better since I have custom error page; but in total it's only 2 pages
+// [RESOLVED] do I need a template engine for single page app? what if I already have an html file? can I just serve that or do I have to convert with template engine? probably better since I have custom error page; but in total it's only 2 pages
     // https://stackoverflow.com/questions/14681276/how-to-make-an-express-site-without-a-template-engine
-// url with a /#add-event- can I change to /add-event? Will I need to modify my HTML (ie. action='#add-event')
-// how do I create REST API? do I add this within index.js?
-// GET /events HTTP/1.1
-// Host: http://127.0.0.1:3000/
-// Content-Type: application/json
+// [RESOLVED] url with a /#add-event- can I change to /add-event? Will I need to modify my HTML (ie. action='#add-event')
 
-// making AJAX calls
+
+// making AJAX calls?
 // $("button").click(function(){
     // $.ajax({url: "demo_test.txt", success: function(result){
     //     $("#div1").html(result);
     //   }});
 
-// json file with temp data? what does it mean to store data in express server? cookies and sessions? 
+
 
 // user management:
     // Displaying all users (get)
@@ -55,15 +58,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // serve static files
 app.use(express.static('public'))
     
-// displaying all users
+// gets array of all users (each user is an object). returns an array
 app.get('/users', (req, res) => {
     res.json(er.users); // is an array
 })
 
-// adding one user
+// adds one user (key = 'username', value = name of user as a string)
+// input taken from body
+// userID is optional
+// does not return anything
 app.post('/user', (req, res) => {
     const username = req.body.username;
-    const userid = req.body.userid;
+    const userid = parseInt(req.body.userid);
     console.log("Body of request is: ", req.body)
     // Output the user to the console for debugging
     console.log("req.body.username/user is: ", username);
@@ -72,9 +78,10 @@ app.post('/user', (req, res) => {
     res.status(200).send('User is added to the "database"');
 });
 
-// deleting one user 
-app.delete('/user/:userid', (req, res) => {
-    const user = parseInt(req.params.userid);
+// deletes one user by userID
+// WHY PARAMS VS BODY
+app.delete('/user/', (req, res) => {
+    const user = parseInt(req.body.userid);
     console.log(req.params);
     
     if(er.users.includes(er.getUserByID(user))) {
@@ -85,12 +92,14 @@ app.delete('/user/:userid', (req, res) => {
     }
 })
 
-// display all events
+// gets array of all event objects
 app.get('/events', (req, res) => {
     res.json(er.events)
 })
 
-// adding one event 
+// adds one event, does not return anything 
+// required parameter: eventDate ({'year': number, 'month': number, 'day': number}), eventName (string), eventCategory (string), eventLocation (string))
+// eventID (number) is optional. will randomly assign ID if none is provided
 app.post('/event', (req, res) => {
     // const {eventID, eventDate, eventName, eventCategory, eventLocation} = req.body;
     console.log("Body of request is: ", req.body)
@@ -99,9 +108,10 @@ app.post('/event', (req, res) => {
     res.send('Event is added to the "database"');
 });
 
-// deleting one event
-app.delete('/event/:eventid', (req, res) => {
-    const event = parseInt(req.params.eventid);
+// deleted one event by eventID
+// does not return anything
+app.delete('/event/', (req, res) => {
+    const event = parseInt(req.body.eventid);
     if (er.events.includes(er.getEventByID(event))) {
         er.deleteEvent(event);
         res.status(200).send('Event is deleted from the "database"');
@@ -110,7 +120,9 @@ app.delete('/event/:eventid', (req, res) => {
     }
 })
 
-// get event by date 
+// get array of events by date 
+// inputs are from params
+// returns an array
 app.get('/events-by-date/', (req, res) => {
     // one option: /events-by-date/:year?/:month?/:day?
     // const {year, month, day} = req.params;
@@ -121,20 +133,30 @@ app.get('/events-by-date/', (req, res) => {
     console.log(er.findEventsByDate({'year': year, 'month': month, 'day': day}))
     console.log(year, month, day)
     res.json(er.findEventsByDate({'year': year, 'month': month, 'day': day}));
-
-    // res.send(req.query)
 })
 
-app.get('/events-by-category/:eventCategory', (req, res) => {
-    console.log(req.params);
-
-    res.json(er.findEventsByCategory(req.params.eventCategory))
-
+// get array of events by category 
+// inputs are from params
+// returns an array
+app.get('/events-by-category/', (req, res) => {
+    res.json(er.findEventsByCategory(req.body.eventCategory))
 })
 
-app.get('/test', (req, res) => {
-    res.send(er); 
-});
+
+
+// DOES TICKETMASTER API GO HERE? OR STAY IN JQUERY
+
+// SAVE EVENT FOR USER
+// CHANGE CODE SO THAT IF EVENT IS DELETED FROM ER, EVENT IS NO LONGER ATTACHED TO USER
+// does not return anything
+// accepts userID and eventID in body(?)
+app.put('/bookmarked', (req, res) => {
+    // let userid = parseInt($("#save-user-id").val());
+    //         let eventid = parseInt($("#save-event-id").val());
+    //         // updates eventRecommender 
+    //         eventRecommender.saveUserEvent(userid, eventid);
+})
+
 
 const PORT = 3000;
 app.listen(PORT, () => {

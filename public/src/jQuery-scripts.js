@@ -21,34 +21,48 @@ $(document).ready( () => {
         //     eventRecommenderEvents.push(event);
         // }
     
-        // function displayUsers(ajaxResponse) {
-        //     let displayUserText = '';
-        //     for (let user of eventRecommender.users) {
-        //         displayUserText += `<li>${user.userName}, ID: ${user.userID}</li>`;
-        //     }
-        //     $("#all-users").html(displayUserText);
-        // }
+        function displayUsers() {
+            // MAKE AJAX CALL TO /USERS (GETS ALL USERS) 
+            let request = $.ajax( {
+                method: "GET",
+                url: '/users', 
+            });
+            
+            console.log(request);
+            
+
+            request.done( () => {
+                let displayUserText = '';
+                for (let user of request.responseJSON) {
+                    
+                    displayUserText += `<li>${user.userName}, ID: ${user.userID}</li>`;
+                }
+                $("#all-users").html(displayUserText);
+            })
+        }
         
-        // displayUsers();
+        displayUsers();
         
         
         $("#add-user").submit((e) => {
             e.preventDefault();
             let name = $("#add-user-name").val();
             let id = parseInt($("#add-user-id").val());
-        
+            console.log("Add user submit name is: ", name);
+            
     
             // eventRecommender.addUser(name, id);
             let request = $.ajax( {
                 method: "POST",
                 url: '/user', 
-                data: {'userid': id, 'username': name}
+                data: {'userID': id, 'userName': name},
+                contentType: 'application/x-www-form-urlencoded',
             });
 
             request.done( () => console.log("success"))
             request.fail( () => console.log("failed"))
             
-            // displayUsers()
+            displayUsers()
         })
         
         $("#delete-user").submit((e) => {
@@ -64,7 +78,7 @@ $(document).ready( () => {
             request.done( () => console.log("success"))
             request.fail( () => console.log("failed"))
             // eventRecommender.deleteUser(id);
-            // displayUsers();
+            displayUsers();
         })
         
     

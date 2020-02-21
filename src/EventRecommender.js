@@ -32,8 +32,11 @@ class EventRecommender {
     // add eventID to the Set for the user
     saveUserEvent(userID, eventID){
         // checks if user and event exists already
-        let user = this.getUserByID(userID);
-        let event = this.getEventByID(eventID);
+        let user = this.getUserByID(userID); // user object
+        let event = this.getEventByID(eventID); // event object
+        console.log(this);
+        
+        console.log('user is ', user, 'event is ', event)
         // if (!user || !event) {
         //     return "Please make sure both the user and event exists on our platform"
         // }
@@ -41,7 +44,7 @@ class EventRecommender {
         if (!this.bookmarkedEvents[user.getUserID()]) {
             this.bookmarkedEvents[user.getUserID()] = new Set();
         }
-        this.bookmarkedEvents[user.getUserID()].add(eventid);
+        this.bookmarkedEvents[user.getUserID()].add(eventID);
     }
 
     // returns user object
@@ -69,6 +72,7 @@ class EventRecommender {
     deleteEvent(eventID) {
     // Deletes the Event from the system by the name of the event
         this.events = this.events.filter(event => event.eventID !== eventID);
+         
         // return this.users;
     }
 
@@ -136,15 +140,15 @@ class User {
 }
 
     // const eventRecommender = new EventRecommender();
-    //     eventRecommender.addUser("Lisa", 12345);
-    //     eventRecommender.addUser("Kim", 12346);
+        // eventRecommender.addUser("Lisa", 12345);
+        // eventRecommender.addUser("Kim", 12346);
     //     eventRecommender.addUser("Bob", 12347);
-    //     eventRecommender.addEvent({'eventName': "Dumpling Down – Lunar New Year Food Festival", 'eventDate': {'year': 2020, 'month': 01, 'day': 03}, 'eventCategory': "Food and Drink", 'eventLocation': "sf", 'eventID': 11111});
+        // eventRecommender.addEvent({'eventName': "Event1", 'eventDate': {'year': 2020, 'month': 01, 'day': 03}, 'eventCategory': "Food and Drink", 'eventLocation': "sf", 'eventID': 11111});
     //     eventRecommender.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "sports", 'eventLocation': "sf", 'eventID': 22222});
     //     // eventRecommender.addEvent("Incredible Art Gallery Exhibit", new Date(2020, 01, 21), "Arts & Theatre", "sf", 22222);
     //     eventRecommender.saveUserEvent(12346, 22222)
     //     eventRecommender.saveUserEvent(12346, 11111)
-    //     eventRecommender.saveUserEvent(12345, 11111)
+        // eventRecommender.saveUserEvent(12345, 11111)
 // console.log(eventRecommender);
 // let dateString = eventRecommender.events[0].eventDate;
 // console.log(new Date(dateString.year, dateString.month, dateString.day));
@@ -153,6 +157,7 @@ class User {
 // console.log(eventRecommender.findEventsByCategory('sports'));
 // console.log(eventRecommender.findEventsByDate({'year': 2021, 'month': 04, 'day': 03}));
 // console.log(eventRecommender.getUserByID(12346));
+// console.log(eventRecommender);
 
 
 if (typeof module != 'undefined'){

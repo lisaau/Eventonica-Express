@@ -6,8 +6,8 @@ const er = new EventRecommender();
 er.addEvent({'eventName': "event1", 'eventDate': {'year': 2020, 'month': 01, 'day': 03}, 'eventCategory': "Food and Drink", 'eventLocation': "sf", 'eventID': 11111});
 er.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "Sports", 'eventLocation': "sf", 'eventID': 22222});
 // er.addUser({'userID': 12345, 'userName': "Lisa"});
-er.addUser(12345, "Lisa");
-er.addUser(12346, "Kim");
+er.addUser("Lisa", 12345);
+er.addUser("Kim", 12346); 
 
 const bodyParser = require('body-parser');
 // import bodyParser from 'body-parser';
@@ -60,7 +60,7 @@ app.use(express.static('public'))
     
 // gets array of all users (each user is an object). returns an array
 app.get('/users', (req, res) => {
-    res.json(er.users); // is an array
+    res.json(er.users); // is a json string of an array
 })
 
 // adds one user (key = 'username', value = name of user as a string)
@@ -68,12 +68,12 @@ app.get('/users', (req, res) => {
 // userID is optional
 // does not return anything
 app.post('/user', (req, res) => {
-    const username = req.body.username;
-    const userid = parseInt(req.body.userid);
+    const userName = req.body.userName;
+    const userID = parseInt(req.body.userID);
     console.log("Body of request is: ", req.body)
     // Output the user to the console for debugging
-    console.log("req.body.username/user is: ", username);
-    er.addUser(username, userid)
+    console.log("req.body.userName is: ", userName);
+    er.addUser(userName, userID)
 
     res.status(200).send('User is added to the "database"');
 });
@@ -92,7 +92,7 @@ app.delete('/user', (req, res) => {
 
 // gets array of all event objects
 app.get('/events', (req, res) => {
-    res.json(er.events)
+    res.json(er.events) // is a json string of an array
 })
 
 // adds one event, does not return anything 
@@ -141,9 +141,6 @@ app.get('/events-by-category/', (req, res) => {
 })
 
 
-
-// DOES TICKETMASTER API GO HERE? OR STAY IN JQUERY
-
 // SAVE EVENT FOR USER
 // CHANGE CODE SO THAT IF EVENT IS DELETED FROM ER, EVENT IS NO LONGER ATTACHED TO USER
 // does not return anything
@@ -152,7 +149,15 @@ app.put('/bookmarked', (req, res) => {
     const userID = parseInt(req.body.userID);
     const eventID = parseInt(req.body.eventID);
     console.log(userID, eventID)
-    er.saveUserEvent(userID, eventID);
+
+    if (er.getEventByID(eventID) && er.getUserByID(userID)) {
+        er.saveUserEvent(userID, eventID);
+        res.status(200).send(`Saved event (${eventID}, ${er.getEventByID(eventID).eventName}) for user (${userID}, ${er.getUserByID(userID).userName})`);
+    } else {
+        res.status(400).send('Event or user was not found'); // maybe split up the error so we can tell if it's the event or user doesn't exist
+    }
+
+    
     console.log(er);
     
     res.end()

@@ -51,8 +51,18 @@ $(document).ready( () => {
             // displayUsers()
         })
         
-        $("#delete-user").submit(() => {
+        $("#delete-user").submit((e) => {
+            e.preventDefault();
             let id = parseInt($("#delete-user-id").val());
+
+            let request = $.ajax( {
+                method: "DELETE",
+                url: '/user', 
+                data: {'userid': id}
+            });
+
+            request.done( () => console.log("success"))
+            request.fail( () => console.log("failed"))
             // eventRecommender.deleteUser(id);
             // displayUsers();
         })

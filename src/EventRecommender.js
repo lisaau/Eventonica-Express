@@ -30,14 +30,14 @@ class EventRecommender {
     // expects numbers for the ID's
     // initialize new Set if user never saved an event
     // add eventID to the Set for the user
-    saveUserEvent(userid, eventid){
+    saveUserEvent(userID, eventID){
         // checks if user and event exists already
-        let user = this.getUserByID(userid);
-        let event = this.getEventByID(eventid);
+        let user = this.getUserByID(userID);
+        let event = this.getEventByID(eventID);
         // if (!user || !event) {
         //     return "Please make sure both the user and event exists on our platform"
         // }
-
+        
         if (!this.bookmarkedEvents[user.getUserID()]) {
             this.bookmarkedEvents[user.getUserID()] = new Set();
         }
@@ -45,8 +45,8 @@ class EventRecommender {
     }
 
     // returns user object
-    getUserByID(userid) {
-        return this.users.filter(user => user.userID === userid)[0];
+    getUserByID(userID) {
+        return this.users.filter(user => user.userID === userID)[0];
     }
     
     // returns event object
@@ -152,6 +152,7 @@ class User {
 // console.log(eventRecommender.events[0].getFormattedDate())
 // console.log(eventRecommender.findEventsByCategory('sports'));
 // console.log(eventRecommender.findEventsByDate({'year': 2021, 'month': 04, 'day': 03}));
+// console.log(eventRecommender.getUserByID(12346));
 
 
 if (typeof module != 'undefined'){

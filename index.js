@@ -26,7 +26,7 @@ app.use(morgan('tiny'));
 // [RESOLVED] url with a /#add-event- can I change to /add-event? Will I need to modify my HTML (ie. action='#add-event')
 
 
-// making AJAX calls?
+// [RESOLVED] making AJAX calls?
 // $("button").click(function(){
     // $.ajax({url: "demo_test.txt", success: function(result){
     //     $("#div1").html(result);
@@ -79,10 +79,8 @@ app.post('/user', (req, res) => {
 });
 
 // deletes one user by userID
-// WHY PARAMS VS BODY
-app.delete('/user/', (req, res) => {
+app.delete('/user', (req, res) => {
     const user = parseInt(req.body.userid);
-    console.log(req.params);
     
     if(er.users.includes(er.getUserByID(user))) {
         er.deleteUser(user);
@@ -151,10 +149,13 @@ app.get('/events-by-category/', (req, res) => {
 // does not return anything
 // accepts userID and eventID in body(?)
 app.put('/bookmarked', (req, res) => {
-    // let userid = parseInt($("#save-user-id").val());
-    //         let eventid = parseInt($("#save-event-id").val());
-    //         // updates eventRecommender 
-    //         eventRecommender.saveUserEvent(userid, eventid);
+    const userID = parseInt(req.body.userID);
+    const eventID = parseInt(req.body.eventID);
+    console.log(userID, eventID)
+    er.saveUserEvent(userID, eventID);
+    console.log(er);
+    
+    res.end()
 })
 
 

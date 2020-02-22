@@ -22,14 +22,10 @@ $(document).ready( () => {
         // }
     
         function displayUsers() {
-            // MAKE AJAX CALL TO /USERS (GETS ALL USERS) 
             let request = $.ajax( {
                 method: "GET",
                 url: '/users', 
             });
-            
-            console.log(request);
-            
 
             request.done( () => {
                 let displayUserText = '';
@@ -50,8 +46,6 @@ $(document).ready( () => {
             let id = parseInt($("#add-user-id").val());
             console.log("Add user submit name is: ", name);
             
-    
-            // eventRecommender.addUser(name, id);
             let request = $.ajax( {
                 method: "POST",
                 url: '/user', 
@@ -77,28 +71,45 @@ $(document).ready( () => {
 
             request.done( () => console.log("success"))
             request.fail( () => console.log("failed"))
-            // eventRecommender.deleteUser(id);
             displayUsers();
         })
         
+
+        // NEED TO FIX ${event.getFormattedDate()}
+        function displayEvents() {
+           let request = $.ajax( {
+               method: "GET",
+               url: '/events', 
+            });
+
+            request.done( () => {
+                let displayEventText = '';
+                for (let event of request.responseJSON) {
+                    
+                    displayEventText += `<li>${event.eventID} - <em>${event.eventName}</em> - ${event.eventCategory} - ${event.eventLocation}</li>`;
+                }
+                $("#all-events").html(displayEventText);
+            })
+        }
     
-    //    function displayEvents() {
-    //        let displayEventText = '';
-    //        for (let event of eventRecommender.events) { 
-    //            displayEventText += `<li>${event.eventID} - <em>${event.eventName}</em> - ${event.getFormattedDate()} - ${event.category} - ${event.description}</li>`;
-    //        }
-    //        $("#all-events").html(displayEventText);
-    //     }
+        displayEvents();
     
-    //     displayEvents();
-    
-        $("#add-event").submit(() => {
+        $("#add-event").submit((e) => {
+            e.preventDefault();
             let id = parseInt($("#add-event-id").val());
             let name = $("#add-event-name").val();
-            let date = $("#add-event-date").val();
+            let date = $("#add-event-date").val().split("-"); // SPLIT INTO YEAR, MONTH, DAY
             let category = $("#add-event-category").val();
-            let description = $("#add-event-description").val();
+            let location = $("#add-event-location").val();
+            console.log(date);
             
+            let request = $.ajax( {
+                method: "POST",
+                url: '/event', 
+                data: {'eventID': id, 'eventName': name, 'eventCategory': category, 'eventLocation': location, 'eventDate': {'year': date[0], 'month': date[1], 'day': date[2]}},
+                contentType: 'application/x-www-form-urlencoded',
+            });
+
             // eventRecommender.addEvent(name, date, category, description, id);
             // displayEvents()
         })
@@ -110,62 +121,65 @@ $(document).ready( () => {
     //     })
     
         
-    //     // JQUERY FOR HANDLING TICKETMASTER SECTION
-    //     // take keyword input (validate?)
-    //     // use that keyword in TM API call ($.ajax? .get()?)
-    //     // using the data that was returned (first 10 events?)
-    //         // display error message if nothing found
-    //     // display those results below dynamically with buttons
-    //     // add event to EventRecommender if clicked button
-    //     // display event
-        
-    //     $("#event-search").submit( (e) => {
-    //         event.preventDefault();
+        // JQUERY FOR HANDLING TICKETMASTER SECTION
+        $("#event-search").submit( (e) => {
+            event.preventDefault();
             
-    //         let keyword = $("#tm-event-keyword").val();
-    //         let category = $("#tm-event-category").val();
+            let keyword = $("#tm-event-keyword").val();
+            let category = $("#tm-event-category").val();
             
-    //         // fetch syntax
-    //         let requestOptions = {
-    //             method: 'GET',
-    //             redirect: 'follow'
-    //         };
+            // fetch syntax
+            let requestOptions = {
+                method: 'GET',
+                redirect: 'follow'
+            };
             
-    //         // fetches event in the US by keyword and displays one event (size = 1). Converts to json and extract event array. Get name, date, category, and location (since there is no description). 
-    //         fetch(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&apikey=7elxdku9GGG5k8j0Xm8KWdANDgecHMV0&size=1&keyword=${keyword}&segmentName=${category}`, requestOptions)
-    //         .then(response => response.json())
-    //         .then(result => result._embedded.events)
-    //         .then(events => {
-    //             let message = ''
-    //             for (let event of events) {
-    //                 let TMeventName = event.name;
-    //                 let TMeventDate = event.dates.start.localDate;
-    //                 let TMeventCategory = event.classifications["0"].segment.name;
-    //                 let TMeventLocation = event._embedded.venues["0"].name;
+            // fetches event in the US by keyword and displays one event (size = 1). Converts to json and extract event array. Get name, date, category, and location (since there is no description). 
+            fetch(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&apikey=7elxdku9GGG5k8j0Xm8KWdANDgecHMV0&size=1&keyword=${keyword}&segmentName=${category}`, requestOptions)
+            .then(response => response.json())
+            .then(result => result._embedded.events)
+            .then(events => {
+                let message = ''
+                for (let event of events) {
+                    let TMeventName = event.name;
+                    let TMeventDate = event.dates.start.localDate.split("-"); //SPLIT THIS OUT INTO YEAR, MONTH, DAY
+                    let TMeventCategory = event.classifications["0"].segment.name;
+                    let TMeventLocation = event._embedded.venues["0"].name;
     
-    //                 let results = `<li class="TM-event-search-result">${TMeventName} - ${moment(TMeventDate).format('MMM Do YYYY')} - ${TMeventCategory} - ${TMeventLocation}</li>`
+                    let results = `<li class="TM-event-search-result">${TMeventName} - ${moment(TMeventDate).format('MMM Do YYYY')} - ${TMeventCategory} - ${TMeventLocation}</li>`
                 
-    //                 message += results;
+                    message += results;
     
-    //                 eventRecommender.addEvent(TMeventName, TMeventDate, TMeventCategory, TMeventLocation);
-    //             }
-    //             $("#event-search-result").html(message)
+
+                    let request = $.ajax( {
+                        method: "POST",
+                        url: '/event', 
+                        data: {'eventName': TMeventName, 'eventCategory': TMeventCategory, 'eventLocation': TMeventLocation, 'eventDate': {'year': TMeventDate[0],'month': TMeventDate[1], 'day': TMeventDate[2]}},
+                        contentType: 'application/x-www-form-urlencoded',
+                    });
+                    request.done( () => {
+                        console.log("added TM event");
+                        
+                    })
+                    // eventRecommender.addEvent(TMeventName, TMeventDate, TMeventCategory, TMeventLocation);
+                }
+                $("#event-search-result").html(message)
     
-    //             // add a save all button below if it's not already there (ie. no children in div)
-    //             if (document.getElementById("btn").children.length === 0) {
-    //                 let newButton = document.createElement("BUTTON");
-    //                 newButton.innerHTML = "Save Event"
-    //                 document.getElementById("btn").appendChild(newButton);
-    //             }
-    //             document.getElementById("btn").addEventListener("click", () => {
-    //                 displayEvents()
-    //             })
-    //         })
-    //         .catch(error => {
-    //             console.log('error', error);
-    //             $("#event-search-result").html("No events found")
-    //         });
-    //     })
+                // add a save all button below if it's not already there (ie. no children in div)
+                if (document.getElementById("btn").children.length === 0) {
+                    let newButton = document.createElement("BUTTON");
+                    newButton.innerHTML = "Save Event"
+                    document.getElementById("btn").appendChild(newButton);
+                }
+                document.getElementById("btn").addEventListener("click", () => {
+                    displayEvents()
+                })
+            })
+            .catch(error => {
+                console.log('error', error);
+                $("#event-search-result").html("No events found")
+            });
+        })
         
     // NEED TO ADJUST CODE BELOW TO USE NEW findEventsByDate that accepts strings instead of date object
     //     $("#date-search").submit(() => {
@@ -195,54 +209,109 @@ $(document).ready( () => {
     //         }
     //     })
     
-    //     $("#category-search").submit(() => { 
-    //         let category = $("#category-search-id").val();
-    //         let filteredEvents = eventRecommender.findEventsByCategory(category); 
-    //         if (filteredEvents.length === 0) {
-    //             $("#category-search-result").html("No events found");
-    //         } else {
-    //             let categoryMessage = '';
-    //             for (let event of filteredEvents) {
-    //                 categoryMessage += `<li>${event.eventName} - ${event.category}</li>`;
-    //             }
-    //             $("#category-search-result").html(categoryMessage);
-    //         }
-    //     })
-    
-    
-    //     function displayBookmarkedEvents() {
-    //         let displayBookmarkedEventsText = '';
+        $("#category-search").submit((e) => { 
+            e.preventDefault();
+            let eventCategory = $("#category-search-id").val(); // category is string in lower case
+            console.log('category is ',  eventCategory);
             
-    //         for (let userid in eventRecommender.bookmarkedEvents) { 
-    //             // start string with user's name (ID -> name)
-    //             let userString = `${eventRecommender.getUserByID( parseInt(userid) ).userName}: `;
+
+            let request = $.ajax( {
+                method: "GET",
+                url: `/events-by-category?eventCategory=${eventCategory}`, 
+                // contentType: 'application/json; charset=utf-8'
+                // data: form.serialize()
+             });
+
+            request.done( () => {
+                if (request.responseJSON.length === 0) {
+                    $("#category-search-result").html("No events found");
+                } else {
+                    let categoryMessage = '';
+                    for (let event of request.responseJSON) {
+                        categoryMessage += `<li>${event.eventName} - ${event.eventCategory}</li>`;
+                    }
+                    $("#category-search-result").html(categoryMessage);
+                }
+            })
+        })
     
-    //             let userSavedEvents = eventRecommender.bookmarkedEvents[userid]; 
+    
+        function displayBookmarkedEvents() {
+            let requestBookmarked = $.ajax( {
+                method: "GET",
+                url: '/bookmarked', 
+            });
+
+            requestBookmarked.done( () => {
+                let displayBookmarkedEventsText = '';
+
+                console.log(requestBookmarked.responseJSON);
+
+                for (let userID in requestBookmarked.responseJSON) { 
+                    // start string with user's name (ID -> name)
+                    // let userString = `${requestUsers.responseJSON.getUserByID( parseInt(userID))}`;
+                    
+                    let requestUsers = $.ajax( {
+                        method: "GET",
+                        url: '/users', 
+                    });
+                    requestUsers.done ( () => {
+                        let test = requestUsers.responseJSON; // array of user objects
+                        
+                        for (let eventID in requestBookmarked.responseJSON[userID]) {
+                            let requestEvents = $.ajax( {
+                                method: "GET",
+                                url: '/events', 
+                            });
+
+                            requestEvents.done( () => {
+                                console.log(requestEvents.responseJSON);
+                                
+                            })
+                        }
+                        
+                    });
+                    
+
+
+                    // console.log(requestBookmarked.responseJSON[userID]); // array of event IDs
+                       
+                }
+
+            })
+
+            
+    
+            //     let userSavedEvents = eventRecommender.bookmarkedEvents[userid]; 
                 
-    //             // getting event names for events in userSavedEvents
-    //             for (let [i, eventid] of userSavedEvents.entries()) {
-    //                 let nameOfEvent = eventRecommender.getEventByID(eventid).eventName;
+            //     // getting event names for events in userSavedEvents
+            //     for (let [i, eventid] of userSavedEvents.entries()) {
+            //         let nameOfEvent = eventRecommender.getEventByID(eventid).eventName;
         
-    //                 // format string different if at the last element of array
-    //                 (userSavedEvents.length - 1 === i) ? userString += `${nameOfEvent}` : userString += `${nameOfEvent}, `
-    //             }
-    //             //USE THIS FOR HTML
-    //             displayBookmarkedEventsText += `<li>${userString}</li>`
+            //         // format string different if at the last element of array
+            //         (userSavedEvents.length - 1 === i) ? userString += `${nameOfEvent}` : userString += `${nameOfEvent}, `
+            //     }
+            //     //USE THIS FOR HTML
+            //     displayBookmarkedEventsText += `<li>${userString}</li>`
         
-    //             // displayBookmarkedEventsText += `${userString}\n`
-    //         }
+            //     // displayBookmarkedEventsText += `${userString}\n`
+            // }
             
-    //         $("#saved-events-users").html(displayBookmarkedEventsText);
-    //      }
+            // $("#saved-events-users").html(displayBookmarkedEventsText);
+         }
      
     //      displayBookmarkedEvents();
     
-    //     $("#save-user-event").submit( () => {
-    //         let userid = parseInt($("#save-user-id").val());
-    //         let eventid = parseInt($("#save-event-id").val());
-    //         // updates eventRecommender 
-    //         eventRecommender.saveUserEvent(userid, eventid);
-    
-    //         displayBookmarkedEvents()
-    //     })    
+        $("#save-user-event").submit( (e) => {
+            e.preventDefault();
+            let userID = parseInt($("#save-user-id").val());
+            let eventID = parseInt($("#save-event-id").val());
+
+            let request = $.ajax( {
+                method: "PUT",
+                url: `/bookmarked?userID=${userID}&eventID=${eventID}`, 
+            });
+             
+            displayBookmarkedEvents()
+        })    
 })

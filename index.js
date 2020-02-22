@@ -8,6 +8,7 @@ er.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'da
 // er.addUser({'userID': 12345, 'userName': "Lisa"});
 er.addUser("Lisa", 12345);
 er.addUser("Kim", 12346); 
+er.saveUserEvent(12345, 11111)
 
 const bodyParser = require('body-parser');
 // import bodyParser from 'body-parser';
@@ -137,32 +138,42 @@ app.get('/events-by-date/', (req, res) => {
 // inputs are from params
 // returns an array
 app.get('/events-by-category/', (req, res) => {
-    res.json(er.findEventsByCategory(req.body.eventCategory))
+    console.log(req.query);
+    console.log(er.findEventsByCategory(req.query.eventCategory));
+    
+    res.json(er.findEventsByCategory(req.query.eventCategory))
 })
 
 
 // SAVE EVENT FOR USER
 // CHANGE CODE SO THAT IF EVENT IS DELETED FROM ER, EVENT IS NO LONGER ATTACHED TO USER
 // does not return anything
-// accepts userID and eventID in body(?)
+// accepts userID and eventID in query params
 app.put('/bookmarked', (req, res) => {
-    const userID = parseInt(req.body.userID);
-    const eventID = parseInt(req.body.eventID);
+    const userID = parseInt(req.query.userID);
+    const eventID = parseInt(req.query.eventID);
     console.log(userID, eventID)
 
     if (er.getEventByID(eventID) && er.getUserByID(userID)) {
         er.saveUserEvent(userID, eventID);
+        console.log(er);
+        
         res.status(200).send(`Saved event (${eventID}, ${er.getEventByID(eventID).eventName}) for user (${userID}, ${er.getUserByID(userID).userName})`);
     } else {
         res.status(400).send('Event or user was not found'); // maybe split up the error so we can tell if it's the event or user doesn't exist
     }
-
-    
-    console.log(er);
-    
-    res.end()
 })
 
+app.get('/bookmarked', (req, res) => {
+    // console.log({...er.bookmarkedEvents});
+    let bookmarkedEvents = {...er.bookmarkedEvents};
+    for (let user in bookmarkedEvents) {
+        bookmarkedEvents[user] = Array.from(bookmarkedEvents[user]);
+    }
+    // console.log(er);
+    
+    res.json(bookmarkedEvents) // json string of object where key is userID and value is Set of eventID
+})
 
 const PORT = 3000;
 app.listen(PORT, () => {

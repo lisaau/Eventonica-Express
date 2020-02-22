@@ -34,9 +34,9 @@ class EventRecommender {
         // checks if user and event exists already
         let user = this.getUserByID(userID); // user object
         let event = this.getEventByID(eventID); // event object
-        console.log(this);
+        // console.log(this);
         
-        console.log('user is ', user, 'event is ', event)
+        // console.log('user is ', user, 'event is ', event)
         // if (!user || !event) {
         //     return "Please make sure both the user and event exists on our platform"
         // }
@@ -67,12 +67,14 @@ class EventRecommender {
         console.log(this.users);
         this.users = this.users.filter(user => user.userID !== userID);
         console.log(this.users);
+        // CHECK BOOKMARKED EVENT AND DELETE THAT RECORD
     }
    
     deleteEvent(eventID) {
     // Deletes the Event from the system by the name of the event
         this.events = this.events.filter(event => event.eventID !== eventID);
          
+        // CHECK BOOKMARKED EVENTS AND DELETE THAT EVENT FOR ALL USERS
         // return this.users;
     }
 

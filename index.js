@@ -100,11 +100,12 @@ app.get('/events', (req, res) => {
 // required parameter: eventDate ({'year': number, 'month': number, 'day': number}), eventName (string), eventCategory (string), eventLocation (string))
 // eventID (number) is optional. will randomly assign ID if none is provided
 app.post('/event', (req, res) => {
-    // const {eventID, eventDate, eventName, eventCategory, eventLocation} = req.body;
+    const {eventID, eventDate, eventName, eventCategory, eventLocation} = req.body;
     console.log("Body of request is: ", req.body)
-    er.addEvent(req.body)
+    // er.addEvent(req.body)
+    er.addEvent(parseInt(eventID), eventDate, eventName, eventCategory, eventLocation);
 
-    res.send('Event is added to the "database"');
+    res.status(200).send('Event is added to the "database"');
 });
 
 // deleted one event by eventID

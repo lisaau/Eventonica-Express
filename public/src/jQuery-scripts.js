@@ -101,7 +101,6 @@ $(document).ready( () => {
             let date = $("#add-event-date").val().split("-"); // SPLIT INTO YEAR, MONTH, DAY
             let category = $("#add-event-category").val();
             let location = $("#add-event-location").val();
-            console.log(date);
             
             let request = $.ajax( {
                 method: "POST",
@@ -110,8 +109,12 @@ $(document).ready( () => {
                 contentType: 'application/x-www-form-urlencoded',
             });
 
+            request.done( () => console.log("success"))
+            request.fail( () => console.log("failed"))
+
             // eventRecommender.addEvent(name, date, category, description, id);
-            // displayEvents()
+            displayEvents()
+            
         })
     
     //     $("#delete-event").submit(() => {

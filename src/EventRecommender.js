@@ -14,6 +14,11 @@ class EventRecommender {
 
     addEvent({eventID, eventDate, eventName, eventCategory, eventLocation}) {
     // Adds a new Event to the System
+        for(let event of this.events) {
+            if(event.eventID === eventID) {
+                return "This event already exists";
+            }
+        }
         this.events.push(new Event(eventID, eventDate, eventName, eventCategory, eventLocation));
     }
 

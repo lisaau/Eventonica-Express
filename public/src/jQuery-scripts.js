@@ -75,7 +75,7 @@ $(document).ready( () => {
         })
         
 
-        // NEED TO FIX ${event.getFormattedDate()}
+        // NEED TO FIX ${event.getFormattedDate()}, but moment works for now so whatev
         function displayEvents() {
            let request = $.ajax( {
                method: "GET",
@@ -86,7 +86,7 @@ $(document).ready( () => {
                 let displayEventText = '';
                 for (let event of request.responseJSON) {
                     
-                    displayEventText += `<li>${event.eventID} - <em>${event.eventName}</em> - ${event.eventCategory} - ${event.eventLocation}</li>`;
+                    displayEventText += `<li>${event.eventID} - <em>${event.eventName}</em> - ${event.eventCategory} - ${event.eventLocation} - ${moment(event.eventDate).format('MMM Do YYYY')}</li>`;
                 }
                 $("#all-events").html(displayEventText);
             })
@@ -101,7 +101,10 @@ $(document).ready( () => {
             let date = $("#add-event-date").val().split("-"); // SPLIT INTO YEAR, MONTH, DAY
             let category = $("#add-event-category").val();
             let location = $("#add-event-location").val();
+
+            console.log(category);
             
+
             let request = $.ajax( {
                 method: "POST",
                 url: '/event', 
@@ -109,7 +112,7 @@ $(document).ready( () => {
                 contentType: 'application/x-www-form-urlencoded',
             });
 
-            request.done( () => console.log("success"))
+            request.done( () => console.log(request))
             request.fail( () => console.log("failed"))
 
             // eventRecommender.addEvent(name, date, category, description, id);
@@ -117,11 +120,17 @@ $(document).ready( () => {
             
         })
     
-    //     $("#delete-event").submit(() => {
-    //         let id = parseInt($("#delete-event-id").val());
-    //         eventRecommender.deleteEvent(id);
-    //         displayEvents();
-    //     })
+        $("#delete-event").submit((e) => {
+            e.preventDefault();
+            let id = parseInt($("#delete-event-id").val());
+            let request = $.ajax( {
+                method: "DELETE",
+                url: '/event',
+                data: {'eventID': id}
+            })
+            // eventRecommender.deleteEvent(id);
+            displayEvents();
+        })
     
         
         // JQUERY FOR HANDLING TICKETMASTER SECTION
@@ -184,39 +193,52 @@ $(document).ready( () => {
             });
         })
         
-    // NEED TO ADJUST CODE BELOW TO USE NEW findEventsByDate that accepts strings instead of date object
-    //     $("#date-search").submit(() => {
-    //         let year = parseInt($("#date-search-year").val());
-    //         let month = parseInt($("#date-search-month").val());
-    //         let day = parseInt($("#date-search-day").val());
+        $("#date-search").submit((e) => {
+            e.preventDefault();
+            let year = parseInt($("#date-search-year").val());
+            let month = parseInt($("#date-search-month").val());
+            let day = parseInt($("#date-search-day").val());
              
-    //         let result = [];
-    
-    //         for (let event of eventRecommender.events) {
-    //             if ((Number.isNaN(year) || year === event.date.getFullYear()) &&
-    //             (Number.isNaN(month) || month === event.date.getMonth() + 1) &&
-    //             (Number.isNaN(day) || day === event.date.getDate())) {
-    //                 result.push(event);
-    //             }
-    //         }
-    //         let message = '';
-    
-    //         for (let element of result) {
-    //             message += `<li>${element.eventName}</li>`;
-    //         }
-    
-    //         if (message === '') {
-    //             $("#date-search-result").html("No events found")
-    //         } else {
-    //             $("#date-search-result").html(message);    
-    //         }
-    //     })
+
+            let request = $.ajax( {
+                method: "GET",
+                url: `/events-by-date?year=${year}&month=${month}&day=${day}`
+            });
+
+            console.log(request.responseJSON);
+            console.log(request);
+            
+
+            let result = [];
+            request.done( () => {
+                for (let event of request.responseJSON) {
+                    if ((Number.isNaN(year) || year === event.eventDate.year) &&
+                    (Number.isNaN(month) || month === event.eventDate.month) &&
+                    (Number.isNaN(day) || day === event.eventDate.day)) {
+                        result.push(event);
+                    }
+                }
+                let message = '';
+        
+                for (let event of result) {
+                    message += `<li>${event.eventName} - ${event.eventCategory} - ${event.eventLocation} - ${moment(event.eventDate).format('MMM Do YYYY')}</li>`;
+                }
+        
+                if (message === '') {
+                    $("#date-search-result").html("No events found")
+                } else {
+                    $("#date-search-result").html(message);    
+                }
+            })
+        })
     
         $("#category-search").submit((e) => { 
             e.preventDefault();
-            let eventCategory = $("#category-search-id").val(); // category is string in lower case
-            console.log('category is ',  eventCategory);
-            
+            let eventCategory = $("#category-search-id").val(); 
+            console.log('category-search eventCategory is: ', eventCategory);
+            if (eventCategory === 'arts & theatre') {
+                eventCategory = 'Arts%20%26%20Theatre';
+            }
 
             let request = $.ajax( {
                 method: "GET",
@@ -231,7 +253,7 @@ $(document).ready( () => {
                 } else {
                     let categoryMessage = '';
                     for (let event of request.responseJSON) {
-                        categoryMessage += `<li>${event.eventName} - ${event.eventCategory}</li>`;
+                        categoryMessage += `<li>${event.eventID} - ${event.eventName} - ${moment(event.eventDate).format('MMM Do YYYY')} - ${event.eventLocation}</li>`;
                     }
                     $("#category-search-result").html(categoryMessage);
                 }
@@ -274,11 +296,6 @@ $(document).ready( () => {
                         }
                         
                     });
-                    
-
-
-                    // console.log(requestBookmarked.responseJSON[userID]); // array of event IDs
-                       
                 }
 
             })

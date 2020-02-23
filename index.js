@@ -4,7 +4,7 @@ const { EventRecommender, User,  Event}  = require('./src/EventRecommender');
 // import { EventRecommender, User,  Event} from './src/EventRecommender';
 const er = new EventRecommender();
 er.addEvent({'eventName': "event1", 'eventDate': {'year': 2020, 'month': 01, 'day': 03}, 'eventCategory': "Food and Drink", 'eventLocation': "sf", 'eventID': 11111});
-er.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "Sports", 'eventLocation': "sf", 'eventID': 22222});
+er.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "Arts & Theatre", 'eventLocation': "sf", 'eventID': 22222});
 // er.addUser({'userID': 12345, 'userName': "Lisa"});
 er.addUser("Lisa", 12345);
 er.addUser("Kim", 12346); 
@@ -100,18 +100,20 @@ app.get('/events', (req, res) => {
 // required parameter: eventDate ({'year': number, 'month': number, 'day': number}), eventName (string), eventCategory (string), eventLocation (string))
 // eventID (number) is optional. will randomly assign ID if none is provided
 app.post('/event', (req, res) => {
-    const {eventID, eventDate, eventName, eventCategory, eventLocation} = req.body;
-    console.log("Body of request is: ", req.body)
+    const {eventID, eventName, eventCategory, eventLocation, year, month, day} = req.body;
+    const eventDate = {'year': year, 'month': month, 'day': day};
+    console.log("Body of request is: ", req.body);
+    console.log(eventID, year, month, day, eventName, eventCategory, eventLocation);
+    er.addEvent({'eventID': parseInt(eventID), 'eventDate': eventDate, 'eventName': eventName, 'eventCategory': eventCategory, 'eventLocation': eventLocation});
+    
     // er.addEvent(req.body)
-    er.addEvent(parseInt(eventID), eventDate, eventName, eventCategory, eventLocation);
-
     res.status(200).send('Event is added to the "database"');
 });
 
 // deleted one event by eventID
 // does not return anything
 app.delete('/event/', (req, res) => {
-    const event = parseInt(req.body.eventid);
+    const event = parseInt(req.body.eventID);
     if (er.events.includes(er.getEventByID(event))) {
         er.deleteEvent(event);
         res.status(200).send('Event is deleted from the "database"');
@@ -131,7 +133,7 @@ app.get('/events-by-date/', (req, res) => {
     const day = parseInt(req.query.day);
     console.log({'year': year, 'month': month, 'day': day});
     console.log(er.findEventsByDate({'year': year, 'month': month, 'day': day}))
-    console.log(year, month, day)
+
     res.json(er.findEventsByDate({'year': year, 'month': month, 'day': day}));
 })
 
@@ -139,9 +141,9 @@ app.get('/events-by-date/', (req, res) => {
 // inputs are from params
 // returns an array
 app.get('/events-by-category/', (req, res) => {
-    console.log(req.query);
+    console.log('event by category ', req.query.eventCategory);
     console.log(er.findEventsByCategory(req.query.eventCategory));
-    
+
     res.json(er.findEventsByCategory(req.query.eventCategory))
 })
 

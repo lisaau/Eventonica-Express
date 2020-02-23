@@ -99,7 +99,7 @@ class EventRecommender {
     // return array of events that match 
     findEventsByDate({year, month, day}){
         const result = [];
-        for (let event of eventRecommender.events) {
+        for (let event of this.events) {
             if ((Number.isNaN(year) || year === event.eventDate.year &&
             (Number.isNaN(month) || month === event.eventDate.month) &&
             (Number.isNaN(day) || day === event.eventDate.day))) {
@@ -151,7 +151,7 @@ class User {
         // eventRecommender.addUser("Kim", 12346);
     //     eventRecommender.addUser("Bob", 12347);
         // eventRecommender.addEvent({'eventName': "Event1", 'eventDate': {'year': 2020, 'month': 01, 'day': 03}, 'eventCategory': "Food and Drink", 'eventLocation': "sf", 'eventID': 11111});
-    //     eventRecommender.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "sports", 'eventLocation': "sf", 'eventID': 22222});
+        // eventRecommender.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "sports", 'eventLocation': "sf", 'eventID': 22222});
     //     // eventRecommender.addEvent("Incredible Art Gallery Exhibit", new Date(2020, 01, 21), "Arts & Theatre", "sf", 22222);
     //     eventRecommender.saveUserEvent(12346, 22222)
     //     eventRecommender.saveUserEvent(12346, 11111)

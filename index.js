@@ -1,17 +1,15 @@
 const express = require('express');
-// import express from 'express';
 const { EventRecommender, User,  Event}  = require('./src/EventRecommender');
-// import { EventRecommender, User,  Event} from './src/EventRecommender';
 const er = new EventRecommender();
-er.addEvent({'eventName': "event1", 'eventDate': {'year': 2020, 'month': 01, 'day': 03}, 'eventCategory': "Food and Drink", 'eventLocation': "sf", 'eventID': 11111});
-er.addEvent({'eventName': "event2", 'eventDate': {'year': 2021, 'month': 04, 'day': 03}, 'eventCategory': "Arts & Theatre", 'eventLocation': "sf", 'eventID': 22222});
-// er.addUser({'userID': 12345, 'userName': "Lisa"});
+
+// some data to work with!
+er.addEvent({'eventName': "Some Magical Event", 'eventDate': {'year': 2020, 'month': 01, 'day': 01}, 'eventCategory': "Arts & Theatre", 'eventLocation': "A Magical World Somewhere", 'eventID': 11111});
+er.addEvent({'eventName': "Corgi Con", 'eventDate': {'year': 2019, 'month': 10, 'day': 19}, 'eventCategory': "Sports", 'eventLocation': "San Francisco", 'eventID': 22222});
 er.addUser("Lisa", 12345);
 er.addUser("Kim", 12346); 
-er.saveUserEvent(12345, 11111)
+er.saveUserEvent(12345, 11111);
 
 const bodyParser = require('body-parser');
-// import bodyParser from 'body-parser';
 // const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const app = express();
@@ -19,41 +17,6 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(cookieParser());
 app.use(morgan('tiny'));
-
-
-// NOTES/Q's:
-// [RESOLVED] do I need a template engine for single page app? what if I already have an html file? can I just serve that or do I have to convert with template engine? probably better since I have custom error page; but in total it's only 2 pages
-    // https://stackoverflow.com/questions/14681276/how-to-make-an-express-site-without-a-template-engine
-// [RESOLVED] url with a /#add-event- can I change to /add-event? Will I need to modify my HTML (ie. action='#add-event')
-
-
-// [RESOLVED] making AJAX calls?
-// $("button").click(function(){
-    // $.ajax({url: "demo_test.txt", success: function(result){
-    //     $("#div1").html(result);
-    //   }});
-
-
-
-// user management:
-    // Displaying all users (get)
-    // app.get('/users', (req, res) => {
-    //     res.render(something from the template engine?)
-    // })
-    // Add user (post)
-    // Delete user (delete)
-// event management:
-    // Displaying all events (get)
-    // Add event (post)
-    // Delete event (delete)
-// ticket master
-    // getting events from TM (get)
-    // saving those events (post?)
-    // displaying in all events (get)
-// search and save
-    // find events by date (get)
-    // find events by category (get)
-    // save event for user (put), displaying results (get)
 
 
 // serve static files
@@ -71,9 +34,6 @@ app.get('/users', (req, res) => {
 app.post('/user', (req, res) => {
     const userName = req.body.userName;
     const userID = parseInt(req.body.userID);
-    console.log("Body of request is: ", req.body)
-    // Output the user to the console for debugging
-    console.log("req.body.userName is: ", userName);
     er.addUser(userName, userID)
 
     res.status(200).send('User is added to the "database"');
@@ -100,13 +60,9 @@ app.get('/events', (req, res) => {
 // required parameter: eventDate ({'year': number, 'month': number, 'day': number}), eventName (string), eventCategory (string), eventLocation (string))
 // eventID (number) is optional. will randomly assign ID if none is provided
 app.post('/event', (req, res) => {
-    // const {eventID, eventName, eventCategory, eventLocation, year, month, day} = req.body;
-    // const eventDate = {'year': year, 'month': month, 'day': day};
-
     // Works for now but would be a pain to add more parameters 
     const {eventID, eventName, eventCategory, eventLocation, eventDate} = req.body;
     er.addEvent({'eventID': parseInt(eventID), 'eventDate': eventDate, 'eventName': eventName, 'eventCategory': eventCategory, 'eventLocation': eventLocation});
-    console.log("Body of request is: ", req.body);
     
     // er.addEvent(req.body); // would be better this way but would need to change the code that creates the random ID otherwise NaN will be displayed. But I don't want to do that right now
     res.status(200).send('Event is added to the "database"');
@@ -128,14 +84,10 @@ app.delete('/event/', (req, res) => {
 // inputs are from params
 // returns an array
 app.get('/events-by-date/', (req, res) => {
-    // one option: /events-by-date/:year?/:month?/:day?
-    // const {year, month, day} = req.params;
-    const year = parseInt(req.query.year); //either a value or undefined
+    const year = parseInt(req.query.year); 
     const month = parseInt(req.query.month);
     const day = parseInt(req.query.day);
-    console.log({'year': year, 'month': month, 'day': day});
-    // console.log(er.findEventsByDate({'year': year, 'month': month, 'day': day}))
-
+    
     res.json(er.findEventsByDate({'year': year, 'month': month, 'day': day}));
 })
 
@@ -143,15 +95,12 @@ app.get('/events-by-date/', (req, res) => {
 // inputs are from params
 // returns an array
 app.get('/events-by-category/', (req, res) => {
-    console.log('event by category ', req.query.eventCategory);
-    console.log(er.findEventsByCategory(req.query.eventCategory));
-
     res.json(er.findEventsByCategory(req.query.eventCategory))
 })
 
 
-// SAVE EVENT FOR USER
-// CHANGE CODE SO THAT IF EVENT IS DELETED FROM ER, EVENT IS NO LONGER ATTACHED TO USER
+// Saves eventID for for userID in bookmarkedEvents in EventRecommender
+// checks if both eventID and userID already exist in Event Recommender
 // does not return anything
 // accepts userID and eventID in query params
 app.put('/bookmarked', (req, res) => {
@@ -169,13 +118,14 @@ app.put('/bookmarked', (req, res) => {
     }
 })
 
+// gets all bookmarked events 
+// converts value from Set to array (sets don't send well)
 app.get('/bookmarked', (req, res) => {
     // console.log({...er.bookmarkedEvents});
     let bookmarkedEvents = {...er.bookmarkedEvents};
     for (let user in bookmarkedEvents) {
         bookmarkedEvents[user] = Array.from(bookmarkedEvents[user]);
     }
-    // console.log(er);
     
     res.json(bookmarkedEvents) // json string of object where key is userID and value is Set of eventID
 })

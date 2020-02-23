@@ -1,139 +1,112 @@
-// [2/20 NEED TO FIX JQUERY CODE]when an event is deleted, if there is any user attending that event, then those records should be deleted as well. We call this "cascading", and I encourage you to look into it some more.avoid using arrow functions in the handlers, and that's because one of the (usually great) attribute of an arrow function is auto-binding of the "this" context, which can create problems if you never need to call $(this).
 $(document).ready( () => {
-    // const eventRecommender = new EventRecommender();
-    //     eventRecommender.addUser("Lisa", 12345);
-    //     eventRecommender.addUser("Kim", 12346);
-    //     eventRecommender.addUser("Bob", 12347);
-    //     eventRecommender.addEvent("Dumpling Down – Lunar New Year Food Festival", new Date(2020, 01, 03), "Food and Drink", "The Biggest Lunar New Year Food Festival in San Francisco!", 11111);
-    //     eventRecommender.addEvent("Incredible Art Gallery Exhibit", new Date(2020, 01, 21), "Arts & Theatre", "There will be multiple exhibits of Harry Potter, Disney, Marvel, DC Comics, Star Wars, Anime and parody art on display featuring a variety of artists and available to purchase at affordable pricing.", 22222);
-    //     eventRecommender.addEvent("Developer Week", new Date(2020, 01, 12), "Tech", "Our conferences, tracks, technical workshops and events throughout the week invite you to get lessons, best practices -- and advanced knowledge", 33333);
-    //     eventRecommender.addEvent("2020 Levi's Presidio 10 ", new Date(2020, 03, 19), "Sports", "A fun, family-oriented race in the Presidio of San Francisco.", 44444);
-    //     eventRecommender.saveUserEvent(12346, 22222)
-    //     eventRecommender.saveUserEvent(12346, 11111)
-    //     eventRecommender.saveUserEvent(12345, 11111)
-    
-        // const eventRecommenderUsers = [];
-        // for (let user of eventRecommender.users) {
-        //     eventRecommenderUsers.push(user);
-        // }
-        // const eventRecommenderEvents = [];
-        // for (let event of eventRecommender.events) {
-        //     eventRecommenderEvents.push(event);
-        // }
-    
-        function displayUsers() {
-            let request = $.ajax( {
-                method: "GET",
-                url: '/users', 
-            });
+    function displayUsers() {
+        let request = $.ajax( {
+            method: "GET",
+            url: '/users', 
+        });
 
-            request.done( () => {
-                let displayUserText = '';
-                for (let user of request.responseJSON) {
-                    
-                    displayUserText += `<li>${user.userName}, ID: ${user.userID}</li>`;
-                }
-                $("#all-users").html(displayUserText);
-            })
-        }
+        request.done( () => {
+            let displayUserText = '';
+            for (let user of request.responseJSON) {
+                
+                displayUserText += `<li>${user.userName}, ID: ${user.userID}</li>`;
+            }
+            $("#all-users").html(displayUserText);
+        })
+    }
+    
+    displayUsers();
         
+        
+    $("#add-user").submit((e) => {
+        e.preventDefault();
+        let name = $("#add-user-name").val();
+        let id = parseInt($("#add-user-id").val());
+        
+        let request = $.ajax( {
+            method: "POST",
+            url: '/user', 
+            data: {'userID': id, 'userName': name},
+            contentType: 'application/x-www-form-urlencoded',
+        });
+
+        request.done( () => console.log("success"))
+        request.fail( () => console.log("failed"))
+        
+        displayUsers()
+    })
+        
+    $("#delete-user").submit((e) => {
+        e.preventDefault();
+        let id = parseInt($("#delete-user-id").val());
+
+        let request = $.ajax( {
+            method: "DELETE",
+            url: '/user', 
+            data: {'userid': id}
+        });
+
+        request.done( () => console.log("success"))
+        request.fail( () => console.log("failed"))
         displayUsers();
+    })
         
-        
-        $("#add-user").submit((e) => {
-            e.preventDefault();
-            let name = $("#add-user-name").val();
-            let id = parseInt($("#add-user-id").val());
-            console.log("Add user submit name is: ", name);
-            
-            let request = $.ajax( {
-                method: "POST",
-                url: '/user', 
-                data: {'userID': id, 'userName': name},
-                contentType: 'application/x-www-form-urlencoded',
-            });
+    function displayEvents() {
+        let request = $.ajax( {
+            method: "GET",
+            url: '/events', 
+        });
 
-            request.done( () => console.log("success"))
-            request.fail( () => console.log("failed"))
-            
-            displayUsers()
+        request.done( () => {
+            let displayEventText = '';
+            for (let event of request.responseJSON) {
+                
+                displayEventText += `<li>${event.eventID} - <em>${event.eventName}</em> - ${event.eventCategory} - ${event.eventLocation} - ${moment(event.eventDate).format('MMM Do YYYY')}</li>`;
+            }
+            $("#all-events").html(displayEventText);
         })
-        
-        $("#delete-user").submit((e) => {
-            e.preventDefault();
-            let id = parseInt($("#delete-user-id").val());
+    }
 
-            let request = $.ajax( {
-                method: "DELETE",
-                url: '/user', 
-                data: {'userid': id}
-            });
-
-            request.done( () => console.log("success"))
-            request.fail( () => console.log("failed"))
-            displayUsers();
-        })
-        
-
-        // NEED TO FIX ${event.getFormattedDate()}, but moment works for now so whatev
-        function displayEvents() {
-           let request = $.ajax( {
-               method: "GET",
-               url: '/events', 
-            });
-
-            request.done( () => {
-                let displayEventText = '';
-                for (let event of request.responseJSON) {
-                    
-                    displayEventText += `<li>${event.eventID} - <em>${event.eventName}</em> - ${event.eventCategory} - ${event.eventLocation} - ${moment(event.eventDate).format('MMM Do YYYY')}</li>`;
-                }
-                $("#all-events").html(displayEventText);
-            })
-        }
+    displayEvents();
     
+    $("#add-event").submit((e) => {
+        e.preventDefault();
+        let id = parseInt($("#add-event-id").val());
+        let name = $("#add-event-name").val();
+        let date = $("#add-event-date").val().split("-"); // SPLIT INTO YEAR, MONTH, DAY
+        let category = $("#add-event-category").val();
+        let location = $("#add-event-location").val();
+        let eventDate = {'year': parseInt(date[0]), 'month': parseInt(date[1]) - 1, 'day': parseInt(date[2])};
+        
+
+        let request = $.ajax( {
+            method: "POST",
+            url: '/event', 
+            data: {'eventID': id, 'eventName': name, 'eventCategory': category, 'eventLocation': location, 'eventDate': eventDate},
+            contentType: 'application/x-www-form-urlencoded',
+        });
+
+        request.done( () => console.log("success"))
+        request.fail( () => console.log("failed"))
+
+        displayEvents()
+    })
+    
+    $("#delete-event").submit((e) => {
+        e.preventDefault();
+        let id = parseInt($("#delete-event-id").val());
+        let request = $.ajax( {
+            method: "DELETE",
+            url: '/event',
+            data: {'eventID': id}
+        })
+
         displayEvents();
-    
-        $("#add-event").submit((e) => {
-            e.preventDefault();
-            let id = parseInt($("#add-event-id").val());
-            let name = $("#add-event-name").val();
-            let date = $("#add-event-date").val().split("-"); // SPLIT INTO YEAR, MONTH, DAY
-            let category = $("#add-event-category").val();
-            let location = $("#add-event-location").val();
-            let eventDate = {'year': parseInt(date[0]), 'month': parseInt(date[1]) - 1, 'day': parseInt(date[2])};
-            // console.log('addevent ui: ', date, date[0], date[1], date[2], 'eventDate ', eventDate);
-            
-
-            let request = $.ajax( {
-                method: "POST",
-                url: '/event', 
-                data: {'eventID': id, 'eventName': name, 'eventCategory': category, 'eventLocation': location, 'eventDate': eventDate},
-                contentType: 'application/x-www-form-urlencoded',
-            });
-
-            request.done( () => console.log(request))
-            request.fail( () => console.log("failed"))
-
-            // eventRecommender.addEvent(name, date, category, description, id);
-            displayEvents()
-            
-        })
-    
-        $("#delete-event").submit((e) => {
-            e.preventDefault();
-            let id = parseInt($("#delete-event-id").val());
-            let request = $.ajax( {
-                method: "DELETE",
-                url: '/event',
-                data: {'eventID': id}
-            })
-            // eventRecommender.deleteEvent(id);
-            displayEvents();
-        })
+    })
     
         
         // JQUERY FOR HANDLING TICKETMASTER SECTION
+        // It would be nice to dynamically create a button next to each event so they can be added separately, but for now it is only going to display one event and you can only search and save one event at a time
         $("#event-search").submit( (e) => {
             event.preventDefault();
             
@@ -170,10 +143,9 @@ $(document).ready( () => {
                         contentType: 'application/x-www-form-urlencoded',
                     });
                     request.done( () => {
-                        console.log("added TM event");
+                        console.log("Added TM event");
                         
                     })
-                    // eventRecommender.addEvent(TMeventName, TMeventDate, TMeventCategory, TMeventLocation);
                 }
                 $("#event-search-result").html(message)
     
@@ -193,24 +165,20 @@ $(document).ready( () => {
             });
         })
         
+        // TO DO: Displays all events if no inputs are there but doesn't filter otherwise
         $("#date-search").submit((e) => {
             e.preventDefault();
             let year = parseInt($("#date-search-year").val());
             let month = parseInt($("#date-search-month").val()) - 1;
             let day = parseInt($("#date-search-day").val());
-             
-
+            
             let request = $.ajax( {
                 method: "GET",
                 url: `/events-by-date?year=${year}&month=${month}&day=${day}`
             });
-
-            console.log(request.responseJSON);
-            console.log(request);
             
-
-            let result = [];
             request.done( () => {
+                let result = [];
                 for (let event of request.responseJSON) {
                     if ((Number.isNaN(year) || year === event.eventDate.year) &&
                     (Number.isNaN(month) || month === event.eventDate.month) &&
@@ -218,6 +186,7 @@ $(document).ready( () => {
                         result.push(event);
                     }
                 }
+                
                 let message = '';
         
                 for (let event of result) {
@@ -235,16 +204,13 @@ $(document).ready( () => {
         $("#category-search").submit((e) => { 
             e.preventDefault();
             let eventCategory = $("#category-search-id").val(); 
-            console.log('category-search eventCategory is: ', eventCategory);
             if (eventCategory === 'arts & theatre') {
                 eventCategory = 'Arts%20%26%20Theatre';
             }
 
             let request = $.ajax( {
                 method: "GET",
-                url: `/events-by-category?eventCategory=${eventCategory}`, 
-                // contentType: 'application/json; charset=utf-8'
-                // data: form.serialize()
+                url: `/events-by-category?eventCategory=${eventCategory}`
              });
 
             request.done( () => {
@@ -260,7 +226,10 @@ $(document).ready( () => {
             })
         })
     
-    
+        // Only displays userID and eventID. eventIDs are not formatted nicely. Will get userName and event names another time. 
+        // Options(?):
+        // create new endpoint in index.js where I get the entire EventRecommender object but that's a lot and not ideal but I will have access to Users and Events 
+        // otherwise I can make 2 more ajax calls with the APIs I've already created to get the Users and Events but may have to next some request.done and that's too much for my brain right now at 1am
         function displayBookmarkedEvents() {
             let requestBookmarked = $.ajax( {
                 method: "GET",
@@ -270,57 +239,15 @@ $(document).ready( () => {
             requestBookmarked.done( () => {
                 let displayBookmarkedEventsText = '';
 
-                console.log(requestBookmarked.responseJSON);
-
-                for (let userID in requestBookmarked.responseJSON) { 
-                    // start string with user's name (ID -> name)
-                    // let userString = `${requestUsers.responseJSON.getUserByID( parseInt(userID))}`;
-                    
-                    let requestUsers = $.ajax( {
-                        method: "GET",
-                        url: '/users', 
-                    });
-                    requestUsers.done ( () => {
-                        let test = requestUsers.responseJSON; // array of user objects
-                        
-                        for (let eventID in requestBookmarked.responseJSON[userID]) {
-                            let requestEvents = $.ajax( {
-                                method: "GET",
-                                url: '/events', 
-                            });
-
-                            requestEvents.done( () => {
-                                console.log(requestEvents.responseJSON);
-                                
-                            })
-                        }
-                        
-                    });
+                for (let userID in requestBookmarked.responseJSON) {
+                    displayBookmarkedEventsText += `<li> ${userID} - ${requestBookmarked.responseJSON[userID]}</li>`;
                 }
-
+                $("#saved-events-users").html(displayBookmarkedEventsText);
             })
-
-            
-    
-            //     let userSavedEvents = eventRecommender.bookmarkedEvents[userid]; 
-                
-            //     // getting event names for events in userSavedEvents
-            //     for (let [i, eventid] of userSavedEvents.entries()) {
-            //         let nameOfEvent = eventRecommender.getEventByID(eventid).eventName;
-        
-            //         // format string different if at the last element of array
-            //         (userSavedEvents.length - 1 === i) ? userString += `${nameOfEvent}` : userString += `${nameOfEvent}, `
-            //     }
-            //     //USE THIS FOR HTML
-            //     displayBookmarkedEventsText += `<li>${userString}</li>`
-        
-            //     // displayBookmarkedEventsText += `${userString}\n`
-            // }
-            
-            // $("#saved-events-users").html(displayBookmarkedEventsText);
          }
      
-    //      displayBookmarkedEvents();
+        // Would normally display all the pre-loaded bookmarked events but since it's not very pretty right now, let's leave it out
+        //  displayBookmarkedEvents();
     
         $("#save-user-event").submit( (e) => {
             e.preventDefault();

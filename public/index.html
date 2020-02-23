@@ -180,7 +180,7 @@
             <div class="row">
                 <div class="col">
                     <h3>Find Events by Date</h3>
-                    <form id="date-search" action="#date-search">
+                    <form id="date-search" action="/events-by-date" method="GET">
                         <label>Event date:</label>
                         <br>
                         <input type="text" placeholder="Year" id="date-search-year" aria-label="Year">
@@ -198,7 +198,7 @@
     
                 <div class="col">
                     <h3>Find Events by Category</h3>
-                    <form id="category-search" action="/events-by-category">
+                    <form id="category-search" action="/events-by-category" method="GET">
                         <label for="category-search-id">Event category:</label>
                         <!-- <input type="text" id="category-search-id"> -->
                         <select id="category-search-id">

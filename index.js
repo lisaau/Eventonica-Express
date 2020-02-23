@@ -100,13 +100,15 @@ app.get('/events', (req, res) => {
 // required parameter: eventDate ({'year': number, 'month': number, 'day': number}), eventName (string), eventCategory (string), eventLocation (string))
 // eventID (number) is optional. will randomly assign ID if none is provided
 app.post('/event', (req, res) => {
-    const {eventID, eventName, eventCategory, eventLocation, year, month, day} = req.body;
-    const eventDate = {'year': year, 'month': month, 'day': day};
-    console.log("Body of request is: ", req.body);
-    console.log(eventID, year, month, day, eventName, eventCategory, eventLocation);
+    // const {eventID, eventName, eventCategory, eventLocation, year, month, day} = req.body;
+    // const eventDate = {'year': year, 'month': month, 'day': day};
+
+    // Works for now but would be a pain to add more parameters 
+    const {eventID, eventName, eventCategory, eventLocation, eventDate} = req.body;
     er.addEvent({'eventID': parseInt(eventID), 'eventDate': eventDate, 'eventName': eventName, 'eventCategory': eventCategory, 'eventLocation': eventLocation});
+    console.log("Body of request is: ", req.body);
     
-    // er.addEvent(req.body)
+    // er.addEvent(req.body); // would be better this way but would need to change the code that creates the random ID otherwise NaN will be displayed. But I don't want to do that right now
     res.status(200).send('Event is added to the "database"');
 });
 
@@ -132,7 +134,7 @@ app.get('/events-by-date/', (req, res) => {
     const month = parseInt(req.query.month);
     const day = parseInt(req.query.day);
     console.log({'year': year, 'month': month, 'day': day});
-    console.log(er.findEventsByDate({'year': year, 'month': month, 'day': day}))
+    // console.log(er.findEventsByDate({'year': year, 'month': month, 'day': day}))
 
     res.json(er.findEventsByDate({'year': year, 'month': month, 'day': day}));
 })

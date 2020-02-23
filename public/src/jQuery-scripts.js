@@ -101,14 +101,14 @@ $(document).ready( () => {
             let date = $("#add-event-date").val().split("-"); // SPLIT INTO YEAR, MONTH, DAY
             let category = $("#add-event-category").val();
             let location = $("#add-event-location").val();
-
-            console.log(category);
+            let eventDate = {'year': parseInt(date[0]), 'month': parseInt(date[1]) - 1, 'day': parseInt(date[2])};
+            // console.log('addevent ui: ', date, date[0], date[1], date[2], 'eventDate ', eventDate);
             
 
             let request = $.ajax( {
                 method: "POST",
                 url: '/event', 
-                data: {'eventID': id, 'eventName': name, 'eventCategory': category, 'eventLocation': location, 'eventDate': {'year': date[0], 'month': date[1], 'day': date[2]}},
+                data: {'eventID': id, 'eventName': name, 'eventCategory': category, 'eventLocation': location, 'eventDate': eventDate},
                 contentType: 'application/x-www-form-urlencoded',
             });
 
@@ -196,7 +196,7 @@ $(document).ready( () => {
         $("#date-search").submit((e) => {
             e.preventDefault();
             let year = parseInt($("#date-search-year").val());
-            let month = parseInt($("#date-search-month").val());
+            let month = parseInt($("#date-search-month").val()) - 1;
             let day = parseInt($("#date-search-day").val());
              
 

@@ -101,7 +101,7 @@ class EventRecommender {
         const result = [];
         for (let event of this.events) {
             if ((Number.isNaN(year) || year === event.eventDate.year &&
-            (Number.isNaN(month) || month === event.eventDate.month) &&
+            (Number.isNaN(month) || month + 1 === event.eventDate.month + 1) &&
             (Number.isNaN(day) || day === event.eventDate.day))) {
                 result.push(event);
             }

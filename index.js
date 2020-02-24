@@ -7,7 +7,7 @@ er.addEvent({'eventName': "Some Magical Event", 'eventDate': {'year': 2020, 'mon
 er.addEvent({'eventName': "Corgi Con", 'eventDate': {'year': 2019, 'month': 10, 'day': 19}, 'eventCategory': "Sports", 'eventLocation': "San Francisco", 'eventID': 22222});
 er.addUser("Lisa", 12345);
 er.addUser("Kim", 12346); 
-er.saveUserEvent(12345, 11111);
+// er.saveUserEvent(12345, 11111);
 
 const bodyParser = require('body-parser');
 // const cookieParser = require('cookie-parser');
@@ -39,9 +39,9 @@ app.post('/user', (req, res) => {
     res.status(200).send('User is added to the "database"');
 });
 
-// deletes one user by userID
+// deletes one user by userID (number)
 app.delete('/user', (req, res) => {
-    const user = parseInt(req.body.userid);
+    const user = parseInt(req.body.userID);
     
     if(er.users.includes(er.getUserByID(user))) {
         er.deleteUser(user);
@@ -61,14 +61,22 @@ app.get('/events', (req, res) => {
 // eventID (number) is optional. will randomly assign ID if none is provided
 app.post('/event', (req, res) => {
     // Works for now but would be a pain to add more parameters 
-    const {eventID, eventName, eventCategory, eventLocation, eventDate} = req.body;
+    let {eventID, eventName, eventCategory, eventLocation, eventDate} = req.body;
+
+    // year, month, day come in as strings, change to number
+    let {year, month, day} = eventDate;
+    year = parseInt(year);
+    month = parseInt(month);
+    day = parseInt(day);
+    eventDate = {'year': year, 'month': month, 'day': day};
+
     er.addEvent({'eventID': parseInt(eventID), 'eventDate': eventDate, 'eventName': eventName, 'eventCategory': eventCategory, 'eventLocation': eventLocation});
     
     // er.addEvent(req.body); // would be better this way but would need to change the code that creates the random ID otherwise NaN will be displayed. But I don't want to do that right now
     res.status(200).send('Event is added to the "database"');
 });
 
-// deleted one event by eventID
+// deleted one event by eventID (number)
 // does not return anything
 app.delete('/event/', (req, res) => {
     const event = parseInt(req.body.eventID);
@@ -114,12 +122,12 @@ app.put('/bookmarked', (req, res) => {
         
         res.status(200).send(`Saved event (${eventID}, ${er.getEventByID(eventID).eventName}) for user (${userID}, ${er.getUserByID(userID).userName})`);
     } else {
-        res.status(400).send('Event or user was not found'); // maybe split up the error so we can tell if it's the event or user doesn't exist
+        res.status(400).send('Event or user was not found'); // TO DO: maybe split up the error so we can tell if it's the event or user doesn't exist
     }
 })
 
 // gets all bookmarked events 
-// converts value from Set to array (sets don't send well)
+// converts value from Set to array (sets don't send well over network)
 app.get('/bookmarked', (req, res) => {
     // console.log({...er.bookmarkedEvents});
     let bookmarkedEvents = {...er.bookmarkedEvents};

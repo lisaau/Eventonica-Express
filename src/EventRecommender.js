@@ -72,13 +72,13 @@ class EventRecommender {
     // pass in object of numbers since input fields take in year, month, day separately
     findEventsByDate({year, month, day}){
         const result = [];
-        for (let event of this.events) {
-            if ((Number.isNaN(year) || year === event.eventDate.year &&
-            (Number.isNaN(month) || month + 1 === event.eventDate.month + 1) &&
-            (Number.isNaN(day) || day === event.eventDate.day))) {
+        
+        for (let event of this.events) {                    
+            if (year === event.eventDate.year || month + 1 === event.eventDate.month + 1 || day === event.eventDate.day) {
                 result.push(event);
             }
         }
+        
         return result;
     }
     
@@ -111,6 +111,9 @@ class User {
     }
 }
 
+// const er = new EventRecommender();
+// er.addEvent({'eventName': "Some Magical Event", 'eventDate': {'year': 2020, 'month': 01, 'day': 01}, 'eventCategory': "Arts & Theatre", 'eventLocation': "A Magical World Somewhere", 'eventID': 11111});
+// console.log(er.findEventsByDate({'year': 2020}));
 
 if (typeof module != 'undefined'){
     module.exports = { EventRecommender, User,  Event} 

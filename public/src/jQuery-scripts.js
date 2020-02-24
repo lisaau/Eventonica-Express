@@ -43,7 +43,7 @@ $(document).ready( () => {
         let request = $.ajax( {
             method: "DELETE",
             url: '/user', 
-            data: {'userid': id}
+            data: {'userID': id}
         });
 
         request.done( () => console.log("success"))
@@ -112,6 +112,10 @@ $(document).ready( () => {
             
             let keyword = $("#tm-event-keyword").val();
             let category = $("#tm-event-category").val();
+
+            if (category === 'arts & theatre') {
+                category = 'Arts%20%26%20Theatre';
+            }
             
             // fetch syntax
             let requestOptions = {
@@ -165,7 +169,6 @@ $(document).ready( () => {
             });
         })
         
-        // TO DO: Displays all events if no inputs are there but doesn't filter otherwise
         $("#date-search").submit((e) => {
             e.preventDefault();
             let year = parseInt($("#date-search-year").val());
@@ -177,19 +180,10 @@ $(document).ready( () => {
                 url: `/events-by-date?year=${year}&month=${month}&day=${day}`
             });
             
-            request.done( () => {
-                let result = [];
-                for (let event of request.responseJSON) {
-                    if ((Number.isNaN(year) || year === event.eventDate.year) &&
-                    (Number.isNaN(month) || month === event.eventDate.month) &&
-                    (Number.isNaN(day) || day === event.eventDate.day)) {
-                        result.push(event);
-                    }
-                }
-                
+            request.done( () => {               
                 let message = '';
         
-                for (let event of result) {
+                for (let event of request.responseJSON) {
                     message += `<li>${event.eventName} - ${event.eventCategory} - ${event.eventLocation} - ${moment(event.eventDate).format('MMM Do YYYY')}</li>`;
                 }
         

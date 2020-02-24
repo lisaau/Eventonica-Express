@@ -138,6 +138,12 @@ app.get('/bookmarked', (req, res) => {
     res.json(bookmarkedEvents) // json string of object where key is userID and value is Set of eventID
 })
 
+// add custom error page
+app.get('/*', (req,res) => {
+    res.sendFile(path.join(__dirname+'/public/404.html'));
+  });
+
+
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`The application is running on localhost:${PORT}`);

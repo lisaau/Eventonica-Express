@@ -61,7 +61,7 @@ $(document).ready( () => {
             let displayEventText = '';
             for (let event of request.responseJSON) {
                 
-                displayEventText += `<li>${event.eventID} - <em>${event.eventName}</em> - ${event.eventCategory} - ${event.eventLocation} - ${moment(event.eventDate).format('MMM Do YYYY')}</li>`;
+                displayEventText += `<li>${event.eventID} - <em>${event.eventName}</em> - ${moment(event.eventDate).format('MMM Do YYYY')} - ${event.eventCategory} - ${event.eventLocation}</li>`;
             }
             $("#all-events").html(displayEventText);
         })
@@ -184,7 +184,7 @@ $(document).ready( () => {
                 let message = '';
         
                 for (let event of request.responseJSON) {
-                    message += `<li>${event.eventName} - ${event.eventCategory} - ${event.eventLocation} - ${moment(event.eventDate).format('MMM Do YYYY')}</li>`;
+                    message += `<li>${event.eventID} - ${event.eventName} - ${moment(event.eventDate).format('MMM Do YYYY')} - ${event.eventCategory} - ${event.eventLocation}</li>`;
                 }
         
                 if (message === '') {

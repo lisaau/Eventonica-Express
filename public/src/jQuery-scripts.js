@@ -106,7 +106,7 @@ $(document).ready( () => {
     
         
         // JQUERY FOR HANDLING TICKETMASTER SECTION
-        // It would be nice to dynamically create a button next to each event so they can be added separately, but for now it is only going to display one event and you can only search and save one event at a time
+        // Search Ticketmaster for events by keyword and/category, displays top 5 events that match with a check box that can be checked. Save Events button is created which can save the checked events
         $("#event-search").submit( (e) => {
             event.preventDefault();
             
@@ -123,45 +123,61 @@ $(document).ready( () => {
                 redirect: 'follow'
             };
             
-            // fetches event in the US by keyword and displays one event (size = 1). Converts to json and extract event array. Get name, date, category, and location (since there is no description). 
-            fetch(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&apikey=7elxdku9GGG5k8j0Xm8KWdANDgecHMV0&size=1&keyword=${keyword}&segmentName=${category}`, requestOptions)
+            // fetches event in the US by keyword and displays top 5 events (size = 5). Converts to json and extract event array. Get name, date, category, and location (since there is no description). 
+            fetch(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&apikey=7elxdku9GGG5k8j0Xm8KWdANDgecHMV0&size=5&keyword=${keyword}&segmentName=${category}`, requestOptions)
             .then(response => response.json())
             .then(result => result._embedded.events)
             .then(events => {
                 let message = ''
-                for (let event of events) {
+                for (let [i, event] of events.entries()) {
                     let TMeventName = event.name;
                     let TMeventDate = event.dates.start.localDate.split("-"); //SPLIT THIS OUT INTO YEAR, MONTH, DAY
                     let TMeventCategory = event.classifications["0"].segment.name;
                     let TMeventLocation = event._embedded.venues["0"].name;
     
-                    let results = `<li class="TM-event-search-result">${TMeventName} - ${moment(TMeventDate).format('MMM Do YYYY')} - ${TMeventCategory} - ${TMeventLocation}</li>`
+                    // event info that will then get serialized to JSON, encoded, and passed into the data attribute of checkbox.
+                    // normally would just pass in Ticketmaster eventID but given that there's not a lot of parameters and we had set it up this way, in this case we will proceed with hardcoding event info 
+                    let dataEventJSON = {'eventName': TMeventName, 'eventCategory': TMeventCategory, 'eventLocation': TMeventLocation, 'eventDate': {'year': parseInt(TMeventDate[0]),'month': parseInt(TMeventDate[1]), 'day': parseInt(TMeventDate[2])}};
+
+                    let results = 
+                    `<li class="TM-event-search-result">
+                    
+                    <label for='event${i}'> 
+                    ${TMeventName} - ${moment(TMeventDate).format('MMM Do YYYY')} - ${TMeventCategory} - ${TMeventLocation}
+                    </label>
+
+                    <input type="checkbox" id="event${i}" name="event${i}" data-eventJSON='${encodeURIComponent(JSON.stringify(dataEventJSON))}'>
+                    </li>`
                 
                     message += results;
-    
-
-                    let request = $.ajax( {
-                        method: "POST",
-                        url: '/event', 
-                        data: {'eventName': TMeventName, 'eventCategory': TMeventCategory, 'eventLocation': TMeventLocation, 'eventDate': {'year': TMeventDate[0],'month': TMeventDate[1], 'day': TMeventDate[2]}},
-                        contentType: 'application/x-www-form-urlencoded',
-                    });
-                    request.done( () => {
-                        console.log("Added TM event");
-                        
-                    })
                 }
                 $("#event-search-result").html(message)
     
                 // add a save all button below if it's not already there (ie. no children in div)
                 if (document.getElementById("btn").children.length === 0) {
                     let newButton = document.createElement("BUTTON");
-                    newButton.innerHTML = "Save Event"
+                    newButton.innerHTML = "Save Events"
                     document.getElementById("btn").appendChild(newButton);
+
+                    // iterate over all checked events, decode JSON and pass that eventInfo to POST request. Add each event to EventRecommender and display
+                    document.getElementById("btn").addEventListener("click", () => {                        
+                        for (let event of $("#event-search-result input:checked")) {
+                            let eventInformation = JSON.parse(decodeURIComponent(event.dataset.eventjson))
+                            
+                            let request = $.ajax( {
+                                method: "POST",
+                                url: '/event', 
+                                data: eventInformation,
+                                contentType: 'application/x-www-form-urlencoded',
+                            });
+                            request.done( () => {
+                                console.log("Added TM event");
+                                
+                            })
+                        }
+                        displayEvents()
+                    })
                 }
-                document.getElementById("btn").addEventListener("click", () => {
-                    displayEvents()
-                })
             })
             .catch(error => {
                 console.log('error', error);

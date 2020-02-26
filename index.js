@@ -114,11 +114,9 @@ app.get('/events-by-category/', (req, res) => {
 app.put('/bookmarked', (req, res) => {
     const userID = parseInt(req.query.userID);
     const eventID = parseInt(req.query.eventID);
-    console.log(userID, eventID)
 
     if (er.getEventByID(eventID) && er.getUserByID(userID)) {
         er.saveUserEvent(userID, eventID);
-        console.log(er);
         
         res.status(200).send(`Saved event (${eventID}, ${er.getEventByID(eventID).eventName}) for user (${userID}, ${er.getUserByID(userID).userName})`);
     } else {

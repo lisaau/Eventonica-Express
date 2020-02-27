@@ -137,8 +137,8 @@ app.get('/bookmarked', (req, res) => {
 })
 
 // add custom error page
-app.get('/*', (req,res) => {
-    res.sendFile(path.join(__dirname+'/public/404.html'));
+app.get('*', (req,res) => {
+    res.status(404).sendFile(__dirname+'/public/404.html');
   });
 
 

@@ -11,7 +11,10 @@
   "license": "ISC",
   "devDependencies": {
     "jasmine": "^3.5.0",
-    "nodemon": "^2.0.2"
+    "mocha": "^7.1.0",
+    "nodemon": "^2.0.2",
+    "should": "^13.2.3",
+    "supertest": "^4.0.2"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

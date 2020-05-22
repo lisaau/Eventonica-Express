@@ -81,7 +81,6 @@ describe("POST", function() {
 });
 
 
-// PUT and DELETE tests do not work
 describe("PUT", function() {
     it("PUT/bookmarked should update bookmarked events for user",function(done){
         server

@@ -1,5 +1,5 @@
 const express = require('express');
-const { EventRecommender, User,  Event}  = require('./src/EventRecommender');
+const { EventRecommender }  = require('./src/EventRecommender');
 const er = new EventRecommender();
 
 // some data to work with!
@@ -7,21 +7,19 @@ er.addEvent({'eventName': "Some Magical Event", 'eventDate': {'year': 2020, 'mon
 er.addEvent({'eventName': "Corgi Con", 'eventDate': {'year': 2019, 'month': 10, 'day': 19}, 'eventCategory': "Sports", 'eventLocation': "San Francisco", 'eventID': 22222});
 er.addUser("Lisa", 12345);
 er.addUser("Kim", 12346); 
-// er.saveUserEvent(12345, 11111);
+er.saveUserEvent(12345, 11111);
+er.saveUserEvent(12345, 22222);
+er.saveUserEvent(12346, 22222);
 
 const bodyParser = require('body-parser');
-// const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(cookieParser());
 app.use(morgan('tiny'));
-
-
-// serve static files
 app.use(express.static('public'))
     
+
 // gets array of all users (each user is an object). returns an array
 app.get('/users', (req, res) => {
     res.json(er.users); // is a json string of an array
@@ -124,16 +122,19 @@ app.put('/bookmarked', (req, res) => {
     }
 })
 
-// gets all bookmarked events 
+// gets all bookmarked events and returns array of objects containing user's name as the key and array of event names as values
 // converts value from Set to array (sets don't send well over network)
 app.get('/bookmarked', (req, res) => {
-    // console.log({...er.bookmarkedEvents});
     let bookmarkedEvents = {...er.bookmarkedEvents};
+    let result = [];
     for (let user in bookmarkedEvents) {
-        bookmarkedEvents[user] = Array.from(bookmarkedEvents[user]);
+        let eventNames = Array.from(bookmarkedEvents[user]).map(eventId => er.getEventByID(eventId).eventName)
+        let userName = er.getUserByID(parseInt(user)).userName;
+        let userBookmarkedEvents = {};
+        userBookmarkedEvents[userName] = eventNames;
+        result.push(userBookmarkedEvents)
     }
-    
-    res.json(bookmarkedEvents) // json string of object where key is userID and value is Set of eventID
+    res.json(result)
 })
 
 // add custom error page

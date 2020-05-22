@@ -111,10 +111,6 @@ class User {
     }
 }
 
-// const er = new EventRecommender();
-// er.addEvent({'eventName': "Some Magical Event", 'eventDate': {'year': 2020, 'month': 01, 'day': 01}, 'eventCategory': "Arts & Theatre", 'eventLocation': "A Magical World Somewhere", 'eventID': 11111});
-// console.log(er.findEventsByDate({'year': 2020}));
-
 if (typeof module != 'undefined'){
     module.exports = { EventRecommender, User,  Event} 
 }
